@@ -36,11 +36,10 @@
 %for single author (just remove % characters)
 \author{
 {\rm Maxwell Bland}
-\and
-{\rm Leon Cheung}\\ \\
-University of California, San Diego
+{\rm Leon Cheung}
 \and
 {\rm Kilian Pfeiffer}\\
+University of California, San Diego
 % copy the following lines to add more authors
 % \and
 % {\rm Name}\\
@@ -55,7 +54,7 @@ University of California, San Diego
 
 
 \subsection*{Abstract}
-Describe the goals of the project and, if you are in a group, who performed which experiments. State the language you used to implement your measurements, and the compiler version and optimization settings you used to compile your code. If you are measuring in an unusual environment (e.g., virtual machine, Web browser, compute cloud, etc.), discuss the implications of the environment on the measurement task (e.g., additional variance that is difficult for you to control for). Estimate the amount of time you spent on this project.
+Describe the goals of the project and, if you are in a group, who performed which experiments. State the language you used to implement your measurements, and the compiler version and optimization settings you used to compile your code. If you are measuring in an unusual environment (e.g., virtual machine, Web browser, compute cloud, etc.), discuss the implications of the environment on the measurement task (e.g., additional variance that is difficult for you to control for). Estimate the amount of time you spent on this project
 
 \section{Introduction}
 
