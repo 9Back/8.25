@@ -64,27 +64,42 @@ text. \\
 
 More fascinating text. Features\endnote{Remember to use endnotes, not footnotes!} galore, plethora of promises.\\
 
-\section{This is Another Section}
+\section{Machine Description}
 
-Some embedded literal typset code might 
-look like the following :
+We ran this beautiful operating system of the gods on a Thinkpad T420, the machine of true developers.
 
 {\tt \small
 \begin{verbatim}
-int wrap_fact(ClientData clientData,
-              Tcl_Interp *interp,
-              int argc, char *argv[]) {
-    int result;
-    int arg0;
-    if (argc != 2) {
-        interp->result = "wrong # args";
-        return TCL_ERROR;
-    }
-    arg0 = atoi(argv[1]);
-    result = fact(arg0);
-    sprintf(interp->result,"%d",result);
-    return TCL_OK;
-}
+    Processor: model, cycle time, cache sizes (L1, L2, instruction, data, etc.)
+      Intel(R) Core(TM) i5-2520M CPU @ 2.50GHz 
+      cache size 3072 KB
+      cpu family 6
+      model 42
+      stepping 7
+      siblings 4
+      cores 2
+      fpu yes
+      fpu_exception yes
+      fpu_exception yes
+      bogomips 4986.98
+      clflush size 64
+      cache_alignment 64
+
+    Memory bus
+
+    I/O bus
+
+    RAM size
+      8 GB
+    Disk: capacity, RPM, controller cache size
+      Samsung SSD 860 EVO 500GB
+      Capacity: 500GiB
+      RPM: 550MB/s read, 520 MB/s write and 98,000 IOPS (Read QD32)
+      Controller Cache Size: 512MB 
+    Network card speed
+      
+    Operating system (including version/release) 
+      9FRONT "RUN FROM ZONE!" (2018.09.09.0 Release)
 \end{verbatim}
 }
 
