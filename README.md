@@ -22,4 +22,18 @@ qemu-system-x86_64 -cpu host -enable-kvm -m 1024 \
     -show-cursor
 ```
 
-##
+## Using
+### Compiling C programs
+```bash
+% 8c test.c
+% 8l test.8
+% ./8.out
+% cat test.c
+#include <u.h> // machine specific desc, should be included first
+#include <libc.h>
+
+void main(int, char**) {
+    print("hello\n");
+    exits(nil);
+}
+```
