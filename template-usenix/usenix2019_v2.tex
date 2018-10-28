@@ -112,8 +112,24 @@ We ran this beautiful operating system of the gods on a Thinkpad T420, the machi
 \end{verbatim}
 }
 
-\section{This Section has SubSections}
-\subsection{First SubSection}
+\section{Experiments}
+
+For each section, we report the base hardware performance, make a guess as to how much overhead software will add to base hardware performance, combine these two into an overall prediction of performance, and then implment and perform the measurement. In all cases, we run the experiment multiple times, and calculate the standard deviation across measurements. We use the \texttt{nsec()} syscall to record the timestamp. Dynamic CPU frequency scaling was disabled for all trials, and all trials were restricted to a single core.
+
+\subsection{Measurement Overhead}
+
+The following section reports overheads of reading time, and the overhead of using a loop to measure meany iterations of an operation. One trial involves looping over 16 \texttt{nsec} timing calls, $2^{16}$ times. We average over a single trial, and we do 64 trials.
+
+\todo{Present results}
+\todo{Discuss}
+\todo{Cite the source for the base hardware performance.
+    Compare the measured performance with the predicted performance. If they are wildly different, speculate on reasons why. What may be contributing to the overhead?
+    Evaluate the success of your methodology. How accurate do you think your results are?
+    For graphs, explain any interesting features of the curves.
+    Answer any questions specifically mentioned with the operation. }
+\todo{State units of all reported values}
+
+\subsubsection{Hypothesis}
 
 Here's a typical figure reference.  The figure is centered at the
 top of the column.  It's scaled.  It's explicitly placed.  You'll
