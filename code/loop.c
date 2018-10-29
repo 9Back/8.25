@@ -3,33 +3,27 @@
 
 #define TRIALS_SIZE 64
 
-double time_nsec(void) {
-    vlong time_begin = nsec();
+double time_loop(void) {
+    double time_total = 0.0;
 
+    double work = 1.1;
 	ulong i;
-	// start trying to read time
-    for (i = 0; i < 16384; i++) {
-		nsec();
-        nsec();
-        nsec();
-        nsec();
-        nsec();
-        nsec();
-        nsec();
-        nsec();
 
-        nsec();
-        nsec();
-        nsec();
-        nsec();
-        nsec();
-        nsec();
-        nsec();
-        nsec();
+    vlong time_end, time_begin;
+
+    // Calculate loop overhead 16384 times.
+    // Loop 16385 times to discard the first.
+    for (i = 0; i < 16385; i++) {
+        time_end = nsec();
+        if (i != 0) {
+            double delta = time_end - time_begin;
+            time_total = time_total + delta;
+        }
+        work = (1.1 * work + 0.7) / work;
+        time_begin = nsec();
 	}
 
-    vlong time_end = nsec();
-    return (time_end - time_begin) / (16384.0 * 16.0);
+    return time_total / 16384.0;
 }
 
 double calc_mean(vlong trials[TRIALS_SIZE]) {
@@ -47,7 +41,7 @@ double calc_mean(vlong trials[TRIALS_SIZE]) {
 double calc_stddev(vlong trials[TRIALS_SIZE], double mean) {
 	double stddev = 0.0;
 
-    ulong i;
+	ulong i;
 	for (i = 0; i < TRIALS_SIZE; i++) {
 		double diff = trials[i] - mean;	
 		stddev = stddev + (diff * diff);
@@ -64,7 +58,7 @@ void main(int argc, char *argv[]) {
     
 	ulong i;
     for (i = 0; i < TRIALS_SIZE; i++) {
-         trials[i] = time_nsec();
+         trials[i] = time_loop();
 	} 
 
     double mean = calc_mean(trials);
