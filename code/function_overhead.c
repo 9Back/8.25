@@ -27,6 +27,13 @@ int func3(int value1, int value2, int value3, int value4, int value5, int value6
 
 void main(int argc, char *argv[]) {
 	
+	for(int i=0;i<LENGTH;i++)
+	{
+	    func1();
+	    func2(1,1);
+	    func3(1,2,3,4,5,6,7,8);
+	}
+	
 	double measurements[LENGTH];
 	double mean=0;
 	double mean2=0;
@@ -57,6 +64,8 @@ void main(int argc, char *argv[]) {
 	print("empty function mean: %f\n", mean);
 	print("empty function stddev: %f\n", standarddev);
 
+	standarddev = 0.0;
+
 	//measuring function call with input parameters
 	for(int i=0;i<LENGTH;i++)
 	{
@@ -81,11 +90,13 @@ void main(int argc, char *argv[]) {
 	print("function call with input parameters mean: %f\n", mean2);
 	print("function call with input parameters stddev: %f\n", standarddev);
 
+	standarddev=0.0;
+
 	//measuring function call with input+return
 	for(int i=0;i<LENGTH;i++)
 	{
 	   time_begin = nsec();
-	   func3(1000,1000);
+	   func3(1000,1000,3,4,5,6,7,8);
 	   time_end = nsec();
 	   measurements[i] =  (time_end - time_begin) * 0.000001;
 	   mean3 = mean3 + measurements[i];
@@ -95,7 +106,7 @@ void main(int argc, char *argv[]) {
 
 	for(int i=0;i<LENGTH;i++)
 	{
-		standarddev = standarddev + (measurements[i] - mean3)*(measurements[i] - mean3);
+	    standarddev = standarddev + (measurements[i] - mean3)*(measurements[i] - mean3);
 	}
 	
 	standarddev = standarddev/LENGTH;
@@ -103,7 +114,6 @@ void main(int argc, char *argv[]) {
 
 	print("function call with input+return mean: %f\n", mean3);
 	print("function call with input+return stddev: %f\n", standarddev);
-
 
 	double diff=mean2-mean;
 
