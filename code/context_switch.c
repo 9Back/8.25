@@ -5,7 +5,7 @@ vlong time_begin=0;
 vlong time_end=0;
 double time_diff=0;
 
-#define LENGTH 100
+#define LENGTH 20000
 
 void main( int argc, char *argv[]) {
 
@@ -15,39 +15,73 @@ void main( int argc, char *argv[]) {
 	double time_diff=0.0;
 	double mean=0.0;
 	double stddev=0.0;
-
-	int fd1[2];
-
-	if(pipe(fd1)==-1) 
-    { 
-        	fprintf(stderr, "Pipe Failed" ); 
-        	exits(nil); 
-    } 
-	 int p = fork();
+	double pipe_overhead=0.0;
+	
+	//measuring pipes
+	int fd[2];
+	if(pipe(fd)==-1) 
+	{ 
+		 exits(nil); 
+	}
+	
+	char data = 'X';
+	write(fd[1],&data,1);
+	
+	time_begin = nsec();
+	char data2;	
+    read(fd[0],&data2,1);
+    time_end = nsec();
+    pipe_overhead = (time_end - time_begin);
+    
+    
+	
+	for(int i=0;i<LENGTH;i++)
+	{
+		int fd[2];
+		
+		if(pipe(fd)==-1) 
+		{ 
+		    	exits(nil); 
+		} 
+		 int p = fork();
+		 
+		 //parent process
+		 if(p > 0)
+		 {
+		 
+		 	char data = 'X';
+		 	write(fd[1],&data,1);
+		 	
+		 	time_begin = nsec();
+		 	wait();
+		 	time_end = nsec();
+		 	
+		 	close(fd[1]);
+		 	
+		 	measurements[i] = (time_end - time_begin);
+		 	measurements[i] = measurements[i] - pipe_overhead;
+		 	measurements[i] = measurements[i]/2.0
+		 	
+		 	print("context switch: %f\n", measurements[i]);
+		 }
+		 else
+		 {
+		 	char data2;	
+		 	read(fd[0],&data2,1);
+		 	exits(nil);
+		 }
+	 }
 	 
-	 //parent process
-	 if(p > 0)
+	 double last_min = 1000000000.0;
+	 for(int i=0;i<LENGTH;i++)
 	 {
 	 
-	 	char data = 'X';
-	 	write(fd1[1],&data,1);
-	 	
-	 	time_begin = nsec();
-	 	wait();
-	 	time_end = nsec();
-	 	
-	 	measurements[0] = (time_end - time_begin);
-	 	
-	 	print("empty function mean: %f\n", measurements[0]);
-	 	exits(nil);
-
+	 	if(measurements[i] < last_min)
+	 	{
+	 		last_min = measurements[i];
+	 	}
 	 }
-	 else
-	 {
-	 	char data2;
-	 	
-	 	read(fd1[0],&data2,1);
-
-	 	exits(nil);
-	 }
+	 
+	 print("minimum context switch: %f\n", last_min);
+	 exits(nil);
 }
