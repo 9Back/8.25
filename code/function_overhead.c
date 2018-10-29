@@ -85,7 +85,7 @@ void main(int argc, char *argv[]) {
 	for(int i=0;i<LENGTH;i++)
 	{
 	   time_begin = nsec();
-	   func2(1000,1000);
+	   func3(1000,1000);
 	   time_end = nsec();
 	   measurements[i] =  (time_end - time_begin) * 0.000001;
 	   mean3 = mean3 + measurements[i];
