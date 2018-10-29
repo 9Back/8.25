@@ -13,7 +13,6 @@ void main( int argc, char *argv[]) {
 	vlong time_begin=0;
 	vlong time_end=0;
 	double time_diff=0.0;
-	double mean=0.0;
 	double stddev=0.0;
 	double pipe_overhead=0.0;
 	
@@ -79,7 +78,7 @@ void main( int argc, char *argv[]) {
 	 
 	 for(int i=0;i<LENGTH;i++)
 	 {
-	 	mean = mean + measurments[i];
+	 	mean = mean + measurements[i];
 	 }
 	 
 	 mean = mean/LENGTH;
