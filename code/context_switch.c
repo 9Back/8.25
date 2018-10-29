@@ -5,7 +5,7 @@ vlong time_begin=0;
 vlong time_end=0;
 double time_diff=0;
 
-#define LENGTH 20000
+#define LENGTH 1000
 
 void main( int argc, char *argv[]) {
 
@@ -26,13 +26,15 @@ void main( int argc, char *argv[]) {
 	
 	char data = 'X';
 	write(fd[1],&data,1);
+	close(fd[1]);
 	
 	time_begin = nsec();
 	char data2;	
     read(fd[0],&data2,1);
+    close(fd[0]);
     time_end = nsec();
-    pipe_overhead = (time_end - time_begin);
     
+    pipe_overhead = (time_end - time_begin);
     
 	
 	for(int i=0;i<LENGTH;i++)
@@ -60,7 +62,7 @@ void main( int argc, char *argv[]) {
 		 	
 		 	measurements[i] = (time_end - time_begin);
 		 	measurements[i] = measurements[i] - pipe_overhead;
-		 	measurements[i] = measurements[i]/2.0
+		 	measurements[i] = measurements[i]/2.0;
 		 	
 		 	print("context switch: %f\n", measurements[i]);
 		 }
@@ -68,9 +70,19 @@ void main( int argc, char *argv[]) {
 		 {
 		 	char data2;	
 		 	read(fd[0],&data2,1);
+		 	close(fd[0]);
 		 	exits(nil);
 		 }
 	 }
+	 
+	 double mean=0.0;
+	 
+	 for(int i=0;i<LENGTH;i++)
+	 {
+	 	mean = mean + measurments[i];
+	 }
+	 
+	 mean = mean/LENGTH;
 	 
 	 double last_min = 1000000000.0;
 	 for(int i=0;i<LENGTH;i++)
