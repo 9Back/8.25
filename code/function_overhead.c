@@ -124,8 +124,4 @@ void main(int argc, char *argv[]) {
 	print("difference func2 and func2: %f\n", diff);
 
 	exits(nil);
-}
-
-
-
-	
+}	

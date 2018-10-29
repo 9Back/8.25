@@ -93,4 +93,5 @@ void (main int argc, char *argv[]) {
 	print("standard fork sigma: %f\n", stddev);
 	
 	exits(nil);
+	
 }
