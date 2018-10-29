@@ -1,7 +1,7 @@
 #include <u.h>
 #include <libc.h>
 
-#define LENGTH 1000
+#define LENGTH 20000
 
 vlong time_begin;
 vlong time_end;
@@ -18,7 +18,7 @@ int func2(int value1, int value2)
 	return 0;
 }
 
-int func3(int value1, int value2)
+int func3(int value1, int value2, int value3, int value4, int value5, int value6, int value7, int value8 )
 {
 	int val = value1;
 	int val2 = value2;
