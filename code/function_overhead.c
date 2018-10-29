@@ -1,6 +1,8 @@
 #include <u.h>
 #include <libc.h>
 
+#define LENGTH 1000
+
 vlong time_begin;
 vlong time_end;
 double time_diff;
@@ -20,12 +22,12 @@ int func3(int value1, int value2)
 {
 	int val = value1;
 	int val2 = value2;
-	return value;
+	return val;
 }
 
 void main(int argc, char *argv[]) {
 	
-	double measurements[64];
+	double measurements[LENGTH];
 	double mean;
 	double mean2;
 	double mean3;
@@ -33,46 +35,46 @@ void main(int argc, char *argv[]) {
 	double standarddev;
 
 	//measureing empty function
-	for(int i=0;i<64;i++)
+	for(int i=0;i<LENGTH;i++)
 	{
 	   time_begin = nsec();
-	   func1(void);
+	   func1();
 	   time_end = nsec();
 	   measurements[i] =  (time_end - time_begin) * 0.000001;
-	   mean = mean + measurments[i];
+	   mean = mean + measurements[i];
 	}
 	
-	mean = mean/64;
+	mean = mean/LENGTH;
 
-	for(int i=0;i<64;i++)
+	for(int i=0;i<LENGTH;i++)
 	{
 		standarddev = standarddev + (measurements[i] - mean)*(measurements[i] - mean);
 	}
 	
-	standarddev = standarddev/64;
+	standarddev = standarddev/LENGTH;
 	standarddev = sqrt(standarddev);  
 
 	print("empty function mean: %f\n", mean);
 	print("empty function stddev: %f\n", standarddev);
 
 	//measuring function call with input parameters
-	for(int i=0;i<64;i++)
+	for(int i=0;i<LENGTH;i++)
 	{
 	   time_begin = nsec();
 	   func2(1000,1000);
 	   time_end = nsec();
 	   measurements[i] =  (time_end - time_begin) * 0.000001;
-	   mean2 = mean2 + measurments[i];
+	   mean2 = mean2 + measurements[i];
 	}
 	
-	mean2 = mean2/64;
+	mean2 = mean2/LENGTH;
 
-	for(int i=0;i<64;i++)
+	for(int i=0;i<LENGTH;i++)
 	{
 		standarddev = standarddev + (measurements[i] - mean2)*(measurements[i] - mean2);
 	}
 	
-	standarddev = standarddev/64;
+	standarddev = standarddev/LENGTH;
 	standarddev = sqrt(standarddev);
 	  
 
@@ -80,23 +82,23 @@ void main(int argc, char *argv[]) {
 	print("function call with input parameters stddev: %f\n", standarddev);
 
 	//measuring function call with input+return
-	for(int i=0;i<64;i++)
+	for(int i=0;i<LENGTH;i++)
 	{
 	   time_begin = nsec();
 	   func2(1000,1000);
 	   time_end = nsec();
 	   measurements[i] =  (time_end - time_begin) * 0.000001;
-	   mean3 = mean3 + measurments[i];
+	   mean3 = mean3 + measurements[i];
 	}
 	
-	mean3 = mean3/64;
+	mean3 = mean3/LENGTH;
 
-	for(int i=0;i<64;i++)
+	for(int i=0;i<LENGTH;i++)
 	{
 		standarddev = standarddev + (measurements[i] - mean3)*(measurements[i] - mean3);
 	}
 	
-	standarddev = standarddev/64;
+	standarddev = standarddev/LENGTH;
 	standarddev = sqrt(standarddev);
 
 	print("function call with input+return mean: %f\n", mean3);
