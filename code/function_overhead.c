@@ -3,9 +3,9 @@
 
 #define LENGTH 20000
 
-vlong time_begin;
-vlong time_end;
-double time_diff;
+vlong time_begin=0;
+vlong time_end=0;
+double time_diff=0;
 
 void func1(void)
 {
@@ -28,11 +28,11 @@ int func3(int value1, int value2, int value3, int value4, int value5, int value6
 void main(int argc, char *argv[]) {
 	
 	double measurements[LENGTH];
-	double mean;
-	double mean2;
-	double mean3;
+	double mean=0;
+	double mean2=0;
+	double mean3=0;
 
-	double standarddev;
+	double standarddev=0;
 
 	//measureing empty function
 	for(int i=0;i<LENGTH;i++)
@@ -78,7 +78,7 @@ void main(int argc, char *argv[]) {
 	standarddev = sqrt(standarddev);
 	  
 
-	print("function call with input parameters mean: %f\n", mean);
+	print("function call with input parameters mean: %f\n", mean2);
 	print("function call with input parameters stddev: %f\n", standarddev);
 
 	//measuring function call with input+return
