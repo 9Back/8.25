@@ -3,7 +3,7 @@
 
 #define LENGTH 20000
 
-void (main int argc, char *argv[]) {
+void main(int argc, char *argv[]) {
 
 	double measurements[LENGTH];
 	vlong time_begin=0;
@@ -26,13 +26,18 @@ void (main int argc, char *argv[]) {
                     ronment.  Is mutually exclusive with RFENVG.*/
           								
 		time_begin = nsec();
-		rfork(RFPROC | RFCNAMEG | RFCENVG);
+		int pid = rfork(RFPROC | RFCNAMEG | RFCENVG);
 		time_end = nsec();
+
+        if (pid == 0) {
+            exits(nil);
+        }
+
 	  	measurements[i] =  (time_end - time_begin) * 0.000001;
 	  	mean = mean + measurements[i];
 	}
 		
-	mean = mean/double(LENGTH);
+	mean = mean/(double)(LENGTH);
 	for(int i=0;i<LENGTH;i++)
 	{
 		stddev = stddev + (measurements[i] - mean)*(measurements[i] - mean);
@@ -74,13 +79,16 @@ void (main int argc, char *argv[]) {
           value.  Rfork will sleep, if necessary, until required pro-
           cess resources are available. */
         
-		fork();
+		int pid = fork();
 		time_end = nsec();
+        if (pid == 0) {
+            exits(nil);
+        }
 	  	measurements[i] =  (time_end - time_begin) * 0.000001;
 	  	mean = mean + measurements[i];
 	}
 	
-	mean = mean/double(LENGTH);
+	mean = mean/(double)(LENGTH);
 	for(int i=0;i<LENGTH;i++)
 	{
 		stddev = stddev + (measurements[i] - mean)*(measurements[i] - mean);
