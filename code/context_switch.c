@@ -29,16 +29,16 @@ void main( int argc, char *argv[]) {
 	 if(p > 0)
 	 {
 	 
-	 	char data = "X";
-	 	write(fd1[1],data,1);
+	 	char data = 'X';
+	 	write(fd1[1],&data,1);
 	 	
 	 	time_begin = nsec();
-	 	wait(0);
+	 	wait();
 	 	time_end = nsec();
 	 	
-	 	measurement[0] = (time_end - time_begin);
+	 	measurements[0] = (time_end - time_begin);
 	 	
-	 	print("empty function mean: %f\n", measurement[0]);
+	 	print("empty function mean: %f\n", measurements[0]);
 	 	exits(nil);
 
 	 }
@@ -46,7 +46,7 @@ void main( int argc, char *argv[]) {
 	 {
 	 	char data2;
 	 	
-	 	read(fd1[0],data2,1);
+	 	read(fd1[0],&data2,1);
 
 	 	exits(nil);
 	 }
