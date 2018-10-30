@@ -83,6 +83,8 @@ void main( int argc, char *argv[]) {
 	 
 	 mean = mean/LENGTH;
 	 
+	 print("context switch mu: %f\n", mean);
+	 
 	 double last_min = 1000000000.0;
 	 for(int i=0;i<LENGTH;i++)
 	 {
