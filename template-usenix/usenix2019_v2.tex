@@ -71,8 +71,13 @@ We ran this beautiful operating system of the gods on a Thinkpad T420, the machi
 \begin{verbatim}
     Processor: model, cycle time, cache sizes (L1, L2,
       instruction, data, etc.)
-      Intel(R) Core(TM) i5-2520M CPU @ 2.50GHz 
+      Intel(R) Core(TM) i5-2520M CPU @ 2.50GHz (Sandy Bridge)
       cache size 3072 KB
+      L1$	128 KiB	
+        L1I$	64 KiB	2x32 KiB	8-way set associative	 
+        L1D$	64 KiB	2x32 KiB	8-way set associative	write-back
+      L2$	512 KiB 2x256 KiB	8-way set associative	write-back
+      L3$	3 MiB   2x1.5 MiB	12-way set associative	write-back
       cpu family 6
       model 42
       stepping 7
@@ -84,6 +89,8 @@ We ran this beautiful operating system of the gods on a Thinkpad T420, the machi
       bogomips 4986.98
       clflush size 64
       cache_alignment 64
+    Details at https://en.wikichip.org/wiki/
+    intel/core_i5/i5-520m 
 
     Memory bus
       DDR3-1333
@@ -116,18 +123,83 @@ We ran this beautiful operating system of the gods on a Thinkpad T420, the machi
 
 For each section, we report the base hardware performance, make a guess as to how much overhead software will add to base hardware performance, combine these two into an overall prediction of performance, and then implment and perform the measurement. In all cases, we run the experiment multiple times, and calculate the standard deviation across measurements. We use the \texttt{nsec()} syscall to record the timestamp. Dynamic CPU frequency scaling was disabled for all trials, and all trials were restricted to a single core.
 
-\subsection{Measurement Overhead}
+\subsection{Measurement Overhead (Reading Time)}
 
-The following section reports overheads of reading time, and the overhead of using a loop to measure meany iterations of an operation. One trial involves looping over 16 \texttt{nsec} timing calls, $2^{16}$ times. We average over a single trial, and we do 64 trials.
+The following section reports overheads of reading time. One trial involves looping over 16 \texttt{nsec} timing calls, $2^{16}$ times. We average out for each call of \texttt{nsec}, and we do 64 trials altogether.
+
+Since we imagine getting the current nsec clock is a fast operation, so we estimate the hardware performance to be on the scale of nanoseconds. Since we aren't using the specialized intel clock frequency assembly instruction to measure time, this operation may be slower, and around 100ns.
+[https://www.7-cpu.com/cpu/SandyBridge.html]
+
+The software cost of this, however, will be tremendous, since that value must be moved out from a register and potentially to a variable, and a syscall must be made, the result might be aroudn 10 to 30 times the hardware cost.
+
+This would put our predicted cost at around 1 to 3 microseconds.
+
+\subsection{Measurement Overhead (Loop Overhead)}
 
 In order to measure the loop overhead, we took the time at the end of a loop
 iteration and at the start of a loop iteration, and find the difference between
 those to measure the loop overhead time. We repreat this 16384 times within
 each trial, and perform 64 trials. We average over all of these trials.
 
-In measuring the function overhead, we created empty functions of zero, two,
-and eight parameters. We then proceeded to call eacah of these functions 20000
-times, and found the average time taken over these 20000 calls.
+The cost of doing a single for loop based branch in hardware is also very low, so long as the branch
+prediction is correct, implying that it is on the order of only a couple of nanoseconds. But 
+there is the need to increment a variable, and check a loop conditional, which adds overhead. 30 to 40
+cycles on a 2.4GHz clock is around 16-20 nanoseconds. So this whole check and loop might take 100 ns. 
+[https://www.7-cpu.com/cpu/SandyBridge.html]
+
+Software, again, will slow this down, as well as the rest of the operating system. Other system processes may need the processor, data may not be in the carch, and thus the latency might be 20 times this, the same as a reference to the L2 cache, roughly
+
+Thus, our predicted cost is around 2 microseconds.
+
+\begin{figure}
+	\centering
+    \begin{tabular}{lll}
+         & Reading nsec & Loop \\
+Hardware Guess  & 100 nsec              &  100 nsec                 \\
+Software Multiplier & 10-30              & 20
+Prediction & 1-3 usec                     & 2 usec                  \\
+Average  & 2.080 usec                     & 2.084 usec                  \\
+Std Dev. & 0.006 usec                     & 0.0034 usec                
+\end{tabular}
+\caption{Measurement Overheads}
+\label{tab:generaloverheads}
+\end{figure}
+
+
+\subsection{Procedure Call Overhead}
+
+In measuring the function overhead, we created functions of zero to seven integer arguments,
+we then proceeded to call eacah of these functions 20000
+times, and found the average time taken over these 20000 calls. Overall, increment overhead was almost non-existent.
+
+The hardware cost of a procedure call using the standard c calling convention should not be that high, as it is almost all done in registers. The caller pushes the arguments to the stack (very little cost), saves the return address, the frame pointer, and calls the function. The hardware cost of this should be more than a for loop, but still reasonable, maybe roughly equitable since there are no comparisons or complex operations. Thus, somewhere on the range of 150ns to 200ns would seem reasonable, maybe even 100ns.
+[https://www.7-cpu.com/cpu/SandyBridge.html]
+
+The software cost of this is is probably about the same as the measurement overhead and for loop overhead, since we still may need to context switch to another process, as well as handle interrupts, etc. So I would reason that it would be around 20x the hardware cost.
+
+This puts our prediction for the cost to be somewhere between 2000 nsec and 4000 nsec. Arguments shouldn't really effect the speed of a function call under our system.
+
+\begin{figure}
+	\centering
+\begin{tabular}{lll}
+Hardware Guess       & 150 nsec & \\
+Software Multiplier Guess       & 20x &  \\
+Prediction       & 3000 usec &  \\
+Num Args & Average    & Std Dev.   \\
+0        & 2.110 usec & 0.191 usec \\
+1        & 2.104 usec & 1.248 usec \\
+2        & 2.118 usec & 0.346 usec \\
+3        & 2.113 usec & 0.571 usec \\
+4        & 2.108 usec & 0.213 usec \\
+5        & 2.120 usec & 0.915 usec \\
+6        & 2.111 usec & 2.165 usec \\
+7        & 2.108 usec & 0.321 usec
+\end{tabular}
+\caption{Procedure Call Overheads}
+\label{tab:proccalloverheads}
+\end{figure}
+
+\subsection{System Call Overhead}
 
 To measure the syscall overhead, we used the \texttt{errstr(2)} syscall, in
 particular, \texttt{rerrstr(char*, vlong)}. \texttt{reerrstr} reads the error
@@ -135,11 +207,67 @@ string for the error of a previous syscall, and does not clear the errstr
 buffer. Within each trial, we performed the syscall 16384 times, and averaged
 over 64 trials.
 
+Data from IBM puts the cost of making a system call on the Pentium processor in 1997/1995
+to be 223 cycles, or roughly 1.68 usec for that processor. Our processor is much faster,
+putting the timing at around 100 nsec.
+[https://www.ibm.com/developerworks/ community/blogs/kevgrig/entry /approximate_overhead_of_system_ calls9?lang=en]
+
+It is likely that the overhead of a syscall beyond this is pretty high due to the
+actual operations and implementation of the syscall operation. Thus, the cost could be 30 to
+40x the hardware cost.
+
+That puts our estimate at around 3 to 4 usec.
+
+\begin{figure}
+	\centering
+    \begin{tabular}{ll}
+            & System Call Overhead \\
+    Hardware Guess  & 100 nsec  \\
+    Software Multiplier  & 30-40x           \\
+    Prediction  & 3-4 usec           \\
+    Average  & 4.835 usec           \\
+    Std Dev. & 0.056 usec          
+    \end{tabular}
+\caption{Syscall Overhead}
+\label{tab:syscalloverheads}
+\end{figure}
+
+\subsection{Task Creation Time}
+
 We measured process creation overhead in two different ways, one in which we
 \texttt{rfork}'ed a new process without copying the parent state to the child,
 and, \texttt{fork}, where the child will copy all of the parent's file
 descriptors, and share the other state as normal. We do these 20000 times for
-each type of \texttt{fork} and we average over all of these calls.
+each type of \texttt{fork} and we average over all of these calls. This methodology
+results from the fact that Plan 9 does not have kernel threads.
+
+The hardware costs of a light fork should be much less than a heavy fork, since
+resources do not need to be shared, but because our processes are minimal, it is
+likely this difference is negligible. Still, this whole process will take tens of thousands to
+millions of cycles, meaning thousands of microseconds, maybe 500 usec with a 1,000,000 cycles.
+[http://ithare.com/infographics-operation-costs-in-cpu-clock-cycles/]
+
+The software costs are most likely pretty low since Plan 9's rfork mechanism is relatively light
+weight and similar to the Unix version of fork. It might only scale this already tremendous
+runtime by a factor of two or so.
+
+That puts our estimate at around 1000 usec for both fork operations.
+
+\begin{figure}
+	\centering
+\begin{tabular}{lll}
+        & Light Fork & Heavy Fork \\
+Hardware Guess & 500 usec                 & 500 usec                  \\
+Software Multiplier & 2x                 & 2x                  \\
+Prediction & 1000 usec                 & 1000 usec                  \\
+Average & 1080 usec                 & 1114 usec                  \\
+Std Dev & 278 usec                  & 344 usec                  
+\end{tabular}
+\caption{Fork Overheads}
+\label{tab:forkoverheads}
+\end{figure}
+
+\subsection{Context Switch Time}
 
 Finally, to measure context switching, we created a pipe in a parent process,
 and forked off a new child process. We forced a context switch by writing to
@@ -151,38 +279,42 @@ the child), and divide the time in half to account for the two context switches.
 We repeat this measurement 1000 times and use a new pipe each time. To take
 the time of a context switch, we take the minimum time over all of these trials.
 
-%\todo{Present results}
-%\todo{Discuss}
+We estimated the base hardware cost of context switching while pinned to a single CPU to
+be on the order of around 1100 ns based upon benchmarks done on the Intel E5-2620, another
+Sandy Bridge processor model. [https://blog.tsunanet.net/2010/11/how-long-does-it-take-to-make-context.html]
 
-%maybe..
-For the function overhead, we found that the number of function parameters does
-not significantly change the overhead of calling the function.
+The software cost to a context switch for Plan 9 is going to be huge. Probably on the order of 40x or something along these lines, since the OS needs to deal with scheduling and piping and I/O and virtual memory, etc..
 
-%\todo{Cite the source for the base hardware performance.
-    Compare the measured performance with the predicted performance. If they are wildly different, speculate on reasons why. What may be contributing to the overhead?
-    Evaluate the success of your methodology. How accurate do you think your results are?
-    For graphs, explain any interesting features of the curves.
-    Answer any questions specifically mentioned with the operation.
-%\todo{State units of all reported values}
+This puts our prediction right around 44 usec.
 
 \begin{figure}
 	\centering
-\begin{tabular}{l ||l l l} 
-	\hline
-	& mean & standard dev. & min \\
-	
-		\hline
-	 measurement overhead & 1ns & 1ns & - \\
-	 loop overhead& 1ns&1ns & - \\
-	 procedure call overhead&1ns &1ns & - \\
-	 syscall overhead& & & - \\
-	 fork time& & & -\\
-	 context switch time& & & 1ns\\
-	 \hline
+\begin{tabular}{ll}
+Hardware Cost  & 1100 nsec  \\
+Software Multiplier  & 40x   \\
+Prediction  & 44 usec    \\
+Average  & 42.048 usec    \\
+Std Dev. & 9.569 usec     \\
+Min      & 12.491 usec   
 \end{tabular}
-\caption{Measurement Table}
-\label{tab:measurments}
+\caption{Context Switch Overheads}
+\label{tab:conswitchoverheads}
 \end{figure}
+
+\subsection{Discussion}
+\textit{Compare the measured performance with the predicted performance. If they are wildly different, speculate on reasons why. What may be contributing to the overhead?}
+    Our hardware estimates were very, very rough. It'd be worthwhile to go back and double check these and discuss with our classmates on the numbers we arrived at.
+
+    
+    \textit{Evaluate the success of your methodology. How accurate do you think your results are?}
+    Our results agree with the Plan 9 paper, which is suprising given that our processor is a bit faster. It will be worth it to discuss with Geoff our results and what we might try looking into going forward. It was hard to ensure we were taking the best approach. We certainly measured roughly what we wanted to measure.
+
+\textit{Answer any questions specifically mentioned with the operation.}
+The issue here is that there are no kernel threads in Plan 9, so some of the CPU measurement questions did not apply
+
+\section{Conclusion}
+
+We should try to correct our idea of hardware cycle counts for typical instructions and discuss the manners in which we chose to benchmark in order to make sure they are the absolute best way to measure these values, or something close to it. 
 
 {\normalsize \bibliographystyle{acm}
 \bibliography{../common/bibliography}}
