@@ -120,8 +120,44 @@ For each section, we report the base hardware performance, make a guess as to ho
 
 The following section reports overheads of reading time, and the overhead of using a loop to measure meany iterations of an operation. One trial involves looping over 16 \texttt{nsec} timing calls, $2^{16}$ times. We average over a single trial, and we do 64 trials.
 
+In order to measure the loop overhead, we took the time at the end of a loop
+iteration and at the start of a loop iteration, and find the difference between
+those to measure the loop overhead time. We repreat this 16384 times within
+each trial, and perform 64 trials. We average over all of these trials.
+
+In measuring the function overhead, we created empty functions of zero, two,
+and eight parameters. We then proceeded to call eacah of these functions 20000
+times, and found the average time taken over these 20000 calls.
+
+To measure the syscall overhead, we used the \texttt{errstr(2)} syscall, in
+particular, \texttt{rerrstr(char*, vlong)}. \texttt{reerrstr} reads the error
+string for the error of a previous syscall, and does not clear the errstr
+buffer. Within each trial, we performed the syscall 16384 times, and averaged
+over 64 trials.
+
+We measured process creation overhead in two different ways, one in which we
+\texttt{rfork}'ed a new process without copying the parent state to the child,
+and, \texttt{fork}, where the child will copy all of the parent's file
+descriptors, and share the other state as normal. We do these 20000 times for
+each type of \texttt{fork} and we average over all of these calls.
+
+Finally, to measure context switching, we created a pipe in a parent process,
+and forked off a new child process. We forced a context switch by writing to
+the pipe in the parent and then waiting for the child to read from the pipe
+and terminate. We take the time between when the parent goes to sleep and when
+the parent wakes up again after the child's termination. Then, we subtract
+the overhead of reading from the pipe and closing the pipe (which happens in
+the child), and divide the time in half to account for the two context switches.
+We repeat this measurement 1000 times and use a new pipe each time. To take
+the time of a context switch, we take the minimum time over all of these trials.
+
 \todo{Present results}
 \todo{Discuss}
+
+%maybe..
+For the function overhead, we found that the number of function parameters does
+not significantly change the overhead of calling the function.
+
 \todo{Cite the source for the base hardware performance.
     Compare the measured performance with the predicted performance. If they are wildly different, speculate on reasons why. What may be contributing to the overhead?
     Evaluate the success of your methodology. How accurate do you think your results are?
