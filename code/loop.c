@@ -10,17 +10,18 @@ double time_loop(void) {
 	ulong i;
 
     vlong time_end, time_begin;
+    uvlong time_begin, time_end
 
     // Calculate loop overhead 16384 times.
     // Loop 16385 times to discard the first.
     for (i = 0; i < 16385; i++) {
-        time_end = nsec();
+        cycles(&time_end);
         if (i != 0) {
             double delta = time_end - time_begin;
             time_total = time_total + delta;
         }
         work = (1.1 * work + 0.7) / work;
-        time_begin = nsec();
+        cycles(&time_begin);
 	}
 
     return time_total / 16384.0;
@@ -64,7 +65,7 @@ void main(int argc, char *argv[]) {
     double mean = calc_mean(trials);
     double stddev = calc_stddev(trials, mean);
 
-	print("mean: %f\t stddev: %f\n", mean, stddev);
+	print("(cycles) mean: %f\t stddev: %f\n", mean, stddev);
 
 	exits(nil);
 }

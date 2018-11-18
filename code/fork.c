@@ -6,8 +6,8 @@
 void main(int argc, char *argv[]) {
 
 	double measurements[LENGTH];
-	vlong time_begin=0;
-	vlong time_end=0;
+	uvlong time_begin=0;
+	uvlong time_end=0;
 	double time_diff=0.0;
 	double mean=0.0;
 	double stddev=0.0;
@@ -24,16 +24,16 @@ void main(int argc, char *argv[]) {
 
 		/*RFCENVG   If set, the new process starts with an empty envi-
                     ronment.  Is mutually exclusive with RFENVG.*/
-          								
-		time_begin = nsec();
+        
+        cycles(&time_begin);
 		int pid = rfork(RFPROC | RFCNAMEG | RFCENVG);
-		time_end = nsec();
+        cycles(&time_end);
 
         if (pid == 0) {
             exits(nil);
         }
 
-	  	measurements[i] =  (time_end - time_begin) * 0.000001;
+	  	measurements[i] =  (time_end - time_begin);
 	  	mean = mean + measurements[i];
 	}
 		
@@ -57,7 +57,7 @@ void main(int argc, char *argv[]) {
 	{          					
 	
 				
-		time_begin = nsec();
+        cycles(&time_begin);
 		
 		// Fork is just a call of rfork(RFFDG|RFREND|RFPROC)
 		
@@ -80,11 +80,12 @@ void main(int argc, char *argv[]) {
           cess resources are available. */
         
 		int pid = fork();
+        cycles(&time_end);
 		time_end = nsec();
         if (pid == 0) {
             exits(nil);
         }
-	  	measurements[i] =  (time_end - time_begin) * 0.000001;
+	  	measurements[i] =  (time_end - time_begin);
 	  	mean = mean + measurements[i];
 	}
 	
@@ -97,8 +98,8 @@ void main(int argc, char *argv[]) {
 	stddev = stddev/LENGTH;
 	stddev = sqrt(stddev);  
 	
-	print("standard fork mu: %f\n", mean);
-	print("standard fork sigma: %f\n", stddev);
+	print("standard fork mu (cycles): %f\n", mean);
+	print("standard fork sigma (cycles): %f\n", stddev);
 	
 	exits(nil);
 	

@@ -3,8 +3,8 @@
 
 #define LENGTH 20000
 
-vlong time_begin=0;
-vlong time_end=0;
+uvlong time_begin=0;
+uvlong time_end=0;
 double time_diff=0;
 
 void func1(void)
@@ -44,10 +44,10 @@ void main(int argc, char *argv[]) {
 	//measureing empty function
 	for(int i=0;i<LENGTH;i++)
 	{
-	   time_begin = nsec();
+       cycles(&time_begin);
 	   func1();
-	   time_end = nsec();
-	   measurements[i] =  (time_end - time_begin) * 0.000001;
+       cycles(&time_end);
+	   measurements[i] =  (time_end - time_begin);
 	   mean = mean + measurements[i];
 	}
 	
@@ -61,18 +61,18 @@ void main(int argc, char *argv[]) {
 	standarddev = standarddev/LENGTH;
 	standarddev = sqrt(standarddev);  
 
-	print("empty function mean: %f\n", mean);
-	print("empty function stddev: %f\n", standarddev);
+	print("empty function mean (cycles): %f\n", mean);
+	print("empty function stddev (cycles): %f\n", standarddev);
 
 	standarddev = 0.0;
 
 	//measuring function call with input parameters
 	for(int i=0;i<LENGTH;i++)
 	{
-	   time_begin = nsec();
+       cycles(&time_begin);
 	   func2(1000,1000);
-	   time_end = nsec();
-	   measurements[i] =  (time_end - time_begin) * 0.000001;
+       cycles(&time_end);
+	   measurements[i] =  (time_end - time_begin);
 	   mean2 = mean2 + measurements[i];
 	}
 	
@@ -87,18 +87,18 @@ void main(int argc, char *argv[]) {
 	standarddev = sqrt(standarddev);
 	  
 
-	print("function call with input parameters mean: %f\n", mean2);
-	print("function call with input parameters stddev: %f\n", standarddev);
+	print("function call with input parameters mean (cycles): %f\n", mean2);
+	print("function call with input parameters stddev (cycles): %f\n", standarddev);
 
 	standarddev=0.0;
 
 	//measuring function call with input+return
 	for(int i=0;i<LENGTH;i++)
 	{
-	   time_begin = nsec();
+       cycles(&time_begin);
 	   func3(1000,1000,3,4,5,6,7,8);
-	   time_end = nsec();
-	   measurements[i] =  (time_end - time_begin) * 0.000001;
+       cycles(&time_end);
+	   measurements[i] =  (time_end - time_begin);
 	   mean3 = mean3 + measurements[i];
 	}
 	
@@ -112,16 +112,16 @@ void main(int argc, char *argv[]) {
 	standarddev = standarddev/LENGTH;
 	standarddev = sqrt(standarddev);
 
-	print("function call with input+return mean: %f\n", mean3);
-	print("function call with input+return stddev: %f\n", standarddev);
+	print("function call with input+return mean (cycles): %f\n", mean3);
+	print("function call with input+return stddev (cycles): %f\n", standarddev);
 
 	double diff=mean2-mean;
 
-	print("difference func and func2: %f\n", diff);
+	print("difference func and func2 (cycles): %f\n", diff);
 
 	diff = mean3- mean2;
 
-	print("difference func2 and func2: %f\n", diff);
+	print("difference func2 and func2 (cycles): %f\n", diff);
 
 	exits(nil);
 }	
