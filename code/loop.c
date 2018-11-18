@@ -9,8 +9,7 @@ double time_loop(void) {
     double work = 1.1;
 	ulong i;
 
-    vlong time_end, time_begin;
-    uvlong time_begin, time_end
+    uvlong time_end, time_begin;
 
     // Calculate loop overhead 16384 times.
     // Loop 16385 times to discard the first.
