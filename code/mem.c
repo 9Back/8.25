@@ -79,9 +79,9 @@ void main(int argc, char *argv[]) {
     
     for(long int m=1;m < ARRAY_SIZE;m++)
     {	
-    	p[m] = (int) m;
-	    
+    	p[m] = (int) m;    
     }
+    
 
     for(long int m=1;m < ARRAY_SIZE/ACCESS_COUNT;m++)
     {	
