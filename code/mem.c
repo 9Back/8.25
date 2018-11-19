@@ -61,7 +61,7 @@ void main(int argc, char *argv[]) {
     uvlong time_tot = 0.0;
     uvlong time_begin, time_end;
 
-    trials_comp = comparison();
+    double trials_comp = comparison();
     
     double mean_comp = calc_mean(trials_comp);
     double stddev_comp = calc_stddev(trials_comp, mean_comp);
@@ -70,10 +70,11 @@ void main(int argc, char *argv[]) {
 	print("mean: %f\t stddev: %f\n", mean_comp, stddev_comp);
 
     int iarray[ARRAY_SIZE];
-    double timing[ARRAY_SIZE/ACCES_COUNT];
+    double timing[ARRAY_SIZE/ACCESS_COUNT];
 
-    for(long int m=1;m < ARRAY_SIZE/ACCESS_COUNT;m=++)
-    {	time_tot = 0.0;
+    for(long int m=1;m < ARRAY_SIZE/ACCESS_COUNT;m++)
+    {	
+    	time_tot = 0.0;
 	    for(int i = 0; i < ACCESS_COUNT ;i++)
 		{
 			cycles(&time_begin);
@@ -87,7 +88,7 @@ void main(int argc, char *argv[]) {
 	    
     }
     
-	print("mean: %f\t stddev: %f\n", mean_12, stddev_12);
+	print("timing");
 	for(long int m=1; m < ARRAY_SIZE/ACCESS_COUNT;m=m+100)
 	{
 		print("avrg. time: %f\n", timing[m]);
