@@ -58,7 +58,7 @@ void main(int argc, char *argv[]) {
     for(int i=0;i< TRIALS_SIZE;i++)
     {
 	    cycles(&time_begin);
-	    memset((void*) p,0,ARRAY_SIZE-1)
+	    memset((void*) p,0,ARRAY_SIZE-1);
 	    cycles(&time_end);
 	    time_tot = (time_end - time_begin);
 	    timings[i] = (double) time_tot;
@@ -74,7 +74,7 @@ void main(int argc, char *argv[]) {
 	for(int i=0;i< TRIALS_SIZE;i++)
     {
 	    cycles(&time_begin);
-	    memchr((void*) p,1,ARRAY_SIZE)
+	    memchr((void*) p,1,ARRAY_SIZE);
 	    cycles(&time_end);
 	    time_tot = (time_end - time_begin);
 	    timings[i] = (double) time_tot;
