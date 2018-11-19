@@ -60,8 +60,13 @@ void main(int argc, char *argv[]) {
 
     uvlong time_tot = 0.0;
     uvlong time_begin, time_end;
+    
+    double trials_comp[TRIAL_SIZE];
 
-    double trials_comp = comparison();
+	for(int i=0;i< TRIAL_SIZE;i++)
+	{
+		trials_comp[i] = comparison();
+	}
     
     double mean_comp = calc_mean(trials_comp);
     double stddev_comp = calc_stddev(trials_comp, mean_comp);
