@@ -3,6 +3,7 @@
 
 
 #define ARRAY_SIZE 800000
+#define TRIALS_SIZE 75
 
 
 double calc_mean(double trials[TRIALS_SIZE]) 
@@ -40,7 +41,7 @@ void main(int argc, char *argv[]) {
     uvlong time_tot = 0.0;
     uvlong time_begin, time_end;
     
-    double timings[TRIAL_SIZE];
+    double timings[TRIALS_SIZE];
     
    
     int *p = (int*) malloc(ARRAY_SIZE*sizeof(int));
@@ -54,7 +55,7 @@ void main(int argc, char *argv[]) {
 	    }
     }
     
-    for(int i=0;i< TRIAL_SIZE;i++)
+    for(int i=0;i< TRIALS_SIZE;i++)
     {
 	    cycles(&time_begin);
 	    memset((void*) p,0,ARRAY_SIZE-1)
@@ -70,7 +71,7 @@ void main(int argc, char *argv[]) {
 	print("mean: %f\t stddev: %f\n", mean, stddev);
 	print("array size %d\n", ARRAY_SIZE);
 	
-	for(int i=0;i< TRIAL_SIZE;i++)
+	for(int i=0;i< TRIALS_SIZE;i++)
     {
 	    cycles(&time_begin);
 	    memchr((void*) p,1,ARRAY_SIZE)
