@@ -1,0 +1,8 @@
+empty function mean (cycles): 50.682200
+empty function stddev (cycles): 154.686347
+function call with input parameters mean (cycles): 47.597600
+function call with input parameters stddev (cycles): 3.411462
+function call with input+return mean (cycles): 48.886200
+function call with input+return stddev (cycles): 3.992925
+difference func and func2 (cycles): -3.084600
+difference func2 and func2 (cycles): 1.288600
