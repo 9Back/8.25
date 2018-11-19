@@ -19,8 +19,10 @@ double time_fault(void) {
     close(fd);
 
     uchar data;
-    uchar i = ((ulong)(mem) + PAGE_SIZE) % PAGE_SIZE;
+    ulong i = (ulong)(mem) + (PAGE_SIZE - ((ulong)(mem) % PAGE_SIZE));
     uchar *aligned_i = (uchar*)i;
+
+    print("aligned address: %d\n", (ulong)(aligned_i));
 
     uvlong time_total, time_begin, time_end;
     ulong iterations = 0;
