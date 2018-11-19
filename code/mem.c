@@ -26,7 +26,7 @@ double comparison(void) {
     return time_tot / (16384.0);
 }
 
-double calc_mean(vlong trials[TRIALS_SIZE]) 
+double calc_mean(double trials[TRIALS_SIZE]) 
 {
 	double mean = 0.0;
 
@@ -40,7 +40,7 @@ double calc_mean(vlong trials[TRIALS_SIZE])
     return mean;
 }
 
-double calc_stddev(vlong trials[TRIALS_SIZE], double mean) 
+double calc_stddev(double trials[TRIALS_SIZE], double mean) 
 {
 	double stddev = 0.0;
 
@@ -84,7 +84,7 @@ void main(int argc, char *argv[]) {
 			cycles(&time_end);
 			time_tot = time_tot + (time_end - time_begin) - mean_comp;
 	    }
-	    timing[m] = time_tot/ACCESS_COUNT;
+	    timing[m] = (double) time_tot/ACCESS_COUNT;
 	    
     }
     
