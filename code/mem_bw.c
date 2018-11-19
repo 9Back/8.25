@@ -87,5 +87,7 @@ void main(int argc, char *argv[]) {
 	print("mean: %f\t stddev: %f\n", mean, stddev);
 	print("array size %d\n", ARRAY_SIZE);
 	
+	print("cycles per bytes %f\n", mean/(4*ARRAY_SIZE));
+	
 	exits(nil);
 }
