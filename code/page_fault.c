@@ -23,10 +23,11 @@ double time_fault(void) {
     uchar *aligned_i = (uchar*)i;
 
     print("aligned address: %d\n", (ulong)(aligned_i));
+    print("iterating until: %d\n", (ulong)(mem) + size);
 
     uvlong time_total, time_begin, time_end;
     ulong iterations = 0;
-    for (; (ulong)aligned_i < (ulong)(mem) + size; aligned_i + PAGE_SIZE) {
+    for (; (ulong)aligned_i < (ulong)(mem) + size; aligned_i = aligned_i + PAGE_SIZE) {
         cycles(&time_begin);
         data = *aligned_i;
         cycles(&time_end);
