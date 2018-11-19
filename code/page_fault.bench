@@ -1,0 +1,17 @@
+sizeof ulong: 4
+allocated size 1073741824
+aligned address: 45056
+iterating until: 1073783928
+sizeof ulong: 4
+allocated size 1073741824
+aligned address: 45056
+iterating until: 1073783928
+sizeof ulong: 4
+allocated size 1073741824
+aligned address: 45056
+iterating until: 1073783928
+sizeof ulong: 4
+allocated size 1073741824
+aligned address: 45056
+iterating until: 1073783928
+(cycles) mean: 4312.500000	 stddev: 32.422986
