@@ -5,14 +5,13 @@
 #define PAGE_SIZE 4096
 
 // 9 bytes * 1GB = 9GB, greater than 8GB ram
-struct {
+struct thing {
     uchar things[9];
-} thing;
+};
 
-double time_fault() {
-
+double time_fault(void) {
     ulong size = (1 << 30) * sizeof(struct thing);
-    uchar *mem = (uchar*)malloc(size));
+    uchar *mem = (uchar*)malloc(size);
 	print("sizeof ulong: %d\n", sizeof(ulong));
 
     int fd = open("file.bin", OREAD);
@@ -21,11 +20,11 @@ double time_fault() {
 
     uchar data;
     uchar i = ((ulong)(mem) + PAGE_SIZE) % PAGE_SIZE;
-    uchar *aligned_i = (ulong*)i;
+    uchar *aligned_i = (uchar*)i;
 
     uvlong time_total, time_begin, time_end;
     ulong iterations = 0;
-    for (; aligned_i < (uchar)(mem) + size; aligned_i + PAGE_SIZE) {
+    for (; (ulong)aligned_i < (ulong)(mem + size); aligned_i + PAGE_SIZE) {
         cycles(&time_begin);
         data = *aligned_i;
         cycles(&time_end);
