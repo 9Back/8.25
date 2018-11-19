@@ -2,18 +2,22 @@
 #include <libc.h>
 
 #define TRIALS_SIZE 4
+// TODO change this according to the page size (run sysinfo)
 #define PAGE_SIZE 4096
 
 struct thing {
+    // TODO change this if need to allocate lotsa memory...   
     uchar things[1];
 };
 
 double time_fault(void) {
+    // TODO change this size according to the physical RAM
     ulong size = (1 << 28) * sizeof(struct thing);
     uchar *mem = (uchar*)malloc(size);
 	print("sizeof ulong: %d\n", sizeof(ulong));
     print("allocated size %d\n", size);
 
+    // TODO generate huge bin file larger than the size of physical memory 
     int fd = open("file.bin", OREAD);
     read(fd, mem, size);
     close(fd);
@@ -27,7 +31,7 @@ double time_fault(void) {
 
     uvlong time_total, time_begin, time_end;
     ulong iterations = 0;
-    for (; (ulong)aligned_i < (ulong)(mem) + size; aligned_i = aligned_i + PAGE_SIZE) {
+    for (; (ulong)aligned_i < (ulong)(mem) + size; aligned_i = aligned_i + (20 * PAGE_SIZE)) {
         cycles(&time_begin);
         data = *aligned_i;
         cycles(&time_end);
