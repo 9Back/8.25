@@ -69,8 +69,14 @@ void main(int argc, char *argv[]) {
     print("Measuring only comparison in cycles\n");
 	print("mean: %f\t stddev: %f\n", mean_comp, stddev_comp);
 
-    int iarray[ARRAY_SIZE];
+    int *p = (int*) malloc(ARRAY_SIZE*sizeof(int));
     double timing[ARRAY_SIZE/ACCESS_COUNT];
+    
+    for(long int m=1;m < ARRAY_SIZE;m++)
+    {	
+    	p[m] = (int) m;
+	    
+    }
 
     for(long int m=1;m < ARRAY_SIZE/ACCESS_COUNT;m++)
     {	
@@ -78,7 +84,7 @@ void main(int argc, char *argv[]) {
 	    for(int i = 0; i < ACCESS_COUNT ;i++)
 		{
 			cycles(&time_begin);
-			if(iarray[i*m]==0)
+			if(p[m*i]==0)
 			{
 			}
 			cycles(&time_end);
@@ -88,12 +94,11 @@ void main(int argc, char *argv[]) {
 	    
     }
     
-	print("timing");
-	for(long int m=1; m < ARRAY_SIZE/ACCESS_COUNT;m=m+100)
+	print("timing:\n");
+	for(long int m=1; m < ARRAY_SIZE/ACCESS_COUNT;m=m+10)
 	{
 		print("avrg. time: %f\n", timing[m]);
 	}
-	
 
 	exits(nil);
 }
