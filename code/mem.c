@@ -2,7 +2,7 @@
 #include <libc.h>
 
 #define TRIALS_SIZE 64
-#define ARRAY_SIZE 7500000
+#define ARRAY_SIZE 800000
 #define ACCESS_COUNT 1000
 
 
@@ -78,9 +78,9 @@ void main(int argc, char *argv[]) {
     double timing[ARRAY_SIZE/ACCESS_COUNT];
     
     //priming cache
-    for (int j = 999; j <=0; j--)
+    for (int j=0; j < 1000; j++)
     {
-	    for(long unsigned int i = 0; i < ARRAY_SIZE ;i++)
+	    for(long unsigned int i = ARRAY_SIZE -1; i >= 0 ;i--)
 		{
 			p[(int) i] = (int) i;
 			if(p[i]==0)
