@@ -77,11 +77,18 @@ void main(int argc, char *argv[]) {
     int *p = (int*) malloc(ARRAY_SIZE*sizeof(int));
     double timing[ARRAY_SIZE/ACCESS_COUNT];
     
-    for(long int m=1;m < ARRAY_SIZE;m++)
-    {	
-    	p[m] = (int) m;    
+    //priming cache
+    for (int j = 999; j <=0; j--)
+    {
+	    for(long unsigned int i = 0; i < ARRAY_SIZE ;i++)
+		{
+			p[(int) i] = (int) i;
+			if(p[i]==0)
+			{
+			}
+
+	    }
     }
-    
 
     for(long int m=1;m < ARRAY_SIZE/ACCESS_COUNT;m++)
     {	
@@ -104,6 +111,7 @@ void main(int argc, char *argv[]) {
 	{
 		print("avrg. time: %f\n", timing[m]);
 	}
-
+	free(p);
+	
 	exits(nil);
 }
