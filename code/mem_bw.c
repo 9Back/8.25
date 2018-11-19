@@ -5,6 +5,25 @@
 #define ARRAY_SIZE 800000
 #define TRIALS_SIZE 250
 
+double comparison(void) {
+
+    uvlong time_tot = 0.0;
+    uvlong time_begin, time_end;
+
+	ulong i;
+	// start trying to read time
+    for (i = 0; i < 16384; i++) 
+    {
+        cycles(&time_begin);
+        if(0==0)
+		{
+		}
+        cycles(&time_end);
+        time_tot = time_tot + (time_end - time_begin);
+	}
+
+    return time_tot / (16384.0);
+}
 
 double calc_mean(double trials[TRIALS_SIZE]) 
 {
