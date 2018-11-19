@@ -109,7 +109,7 @@ void main(int argc, char *argv[]) {
 	    memchr((void*) p,1,4*ARRAY_SIZE);
 	    cycles(&time_end);
 	    time_tot = (time_end - time_begin);
-	    timings[i] = (double) time_tot - ARRAY_SIZE*mean_comp;
+	    timings[i] = (double) time_tot;// - ARRAY_SIZE*mean_comp;
 	}
 	
 	mean = calc_mean(timings);
