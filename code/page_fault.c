@@ -4,15 +4,15 @@
 #define TRIALS_SIZE 4
 #define PAGE_SIZE 4096
 
-// 9 bytes * 1GB = 9GB, greater than 8GB ram
 struct thing {
-    uchar things[9];
+    uchar things[1];
 };
 
 double time_fault(void) {
-    ulong size = (1 << 30) * sizeof(struct thing);
+    ulong size = (1 << 28) * sizeof(struct thing);
     uchar *mem = (uchar*)malloc(size);
 	print("sizeof ulong: %d\n", sizeof(ulong));
+    print("allocated size %d\n", size);
 
     int fd = open("file.bin", OREAD);
     read(fd, mem, size);
@@ -26,7 +26,7 @@ double time_fault(void) {
 
     uvlong time_total, time_begin, time_end;
     ulong iterations = 0;
-    for (; (ulong)aligned_i < (ulong)(mem + size); aligned_i + PAGE_SIZE) {
+    for (; (ulong)aligned_i < (ulong)(mem) + size; aligned_i + PAGE_SIZE) {
         cycles(&time_begin);
         data = *aligned_i;
         cycles(&time_end);
