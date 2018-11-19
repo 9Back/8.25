@@ -3,7 +3,7 @@
 
 
 #define ARRAY_SIZE 800000
-#define TRIALS_SIZE 75
+#define TRIALS_SIZE 250
 
 
 double calc_mean(double trials[TRIALS_SIZE]) 
@@ -43,6 +43,19 @@ void main(int argc, char *argv[]) {
     
     double timings[TRIALS_SIZE];
     
+    double trials_comp[TRIALS_SIZE];
+
+	for(int i=0;i< TRIALS_SIZE;i++)
+	{
+		trials_comp[i] = comparison();
+	}
+    
+    double mean_comp = calc_mean(trials_comp);
+    double stddev_comp = calc_stddev(trials_comp, mean_comp);
+    
+    print("Measuring only comparison in cycles\n");
+	print("mean: %f\t stddev: %f\n", mean_comp, stddev_comp);
+    
    
     int *p = (int*) malloc(ARRAY_SIZE*sizeof(int));
     
@@ -77,7 +90,7 @@ void main(int argc, char *argv[]) {
 	    memchr((void*) p,1,ARRAY_SIZE);
 	    cycles(&time_end);
 	    time_tot = (time_end - time_begin);
-	    timings[i] = (double) time_tot;
+	    timings[i] = (double) time_tot - ARRAY_SIZE*mean_comp;
 	}
 	
 	mean = calc_mean(timings);
