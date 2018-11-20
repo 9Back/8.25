@@ -48,7 +48,9 @@ double time_fault(void) {
     }
 
     double mean = (double)(time_total) / (double)(iterations);
-    free(mem);
+    for (int i = 0; i < NUM_MEMS; i++) {
+        free(mems[i]);
+    }
     
     return mean;
 }
