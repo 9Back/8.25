@@ -5,37 +5,37 @@ clean:
 	rm *.8 mem_bw fork loop context_switch function_overhead mem msmt page_fault syscall
 
 mem_bw: mem_bw.c
-	8c mem_bw.c
+	8c -N mem_bw.c
 	8l -o mem_bw mem_bw.8
 
 syscall:
-	8c syscall.c
+	8c -N syscall.c
 	8l -o syscall syscall.8
 
 page_fault:
-	8c page_fault.c
+	8c -N page_fault.c
 	8l -o page_fault page_fault.8
 
 fork:
-	8c fork.c
+	8c -N fork.c
 	8l -o fork fork.8
 
 loop:
-	8c loop.c
+	8c -N loop.c
 	8l -o loop loop.8
 
 context_switch:
-	8c context_switch.c
+	8c -N context_switch.c
 	8l -o context_switch context_switch.8
 
 function_overhead:
-	8c function_overhead.c
+	8c -N function_overhead.c
 	8l -o function_overhead function_overhead.8
 
 mem:
-	8c mem.c
+	8c -N mem.c
 	8l -o mem mem.8
 
 msmt:
-	8c msmt.c
+	8c -N msmt.c
 	8l -o msmt msmt.8

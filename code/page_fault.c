@@ -1,99 +1,61 @@
 #include <u.h>
 #include <libc.h>
 
-#define TRIALS_SIZE 4
-// TODO change this according to the page size (run sysinfo)
-#define PAGE_SIZE 4096
-#define NUM_MEMS 32
+#define TRIALS 100
 
-struct thing {
-    // TODO change this if need to allocate lotsa memory...   
-    uchar things[1];
-};
-
-double time_fault(void) {
-    // TODO change this size according to the physical RAM
-    ulong size = (1 << 28) * sizeof(struct thing);
-    uchar* mems[NUM_MEMS];
-    for (int i = 0; i < NUM_MEMS; i++) {
-        mems[i] = (uchar*)malloc(size);
-    }
-	print("sizeof ulong: %d\n", sizeof(ulong));
-    print("allocated size %d, allocated %d of them.\n", size, NUM_MEMS);
-
-    // TODO generate huge bin file larger than the size of physical memory 
-    int fd = open("file.bin", OREAD);
-    for (int i = 0; i < NUM_MEMS; i++) {
-        read(fd, mems[i], size);
-    }
-    close(fd);
-
-    ulong iterations = 0;
-    uvlong time_total, time_begin, time_end;
-    for (int i = 0; i < NUM_MEMS; i++) {
-        uchar data;
-        ulong i = (ulong)(mems[i]) + (PAGE_SIZE - ((ulong)(mems[i]) % PAGE_SIZE));
-        uchar *aligned_i = (uchar*)i;
-
-        print("aligned address: %d\n", (ulong)(aligned_i));
-        print("iterating until: %d\n", (ulong)(mems[i]) + size);
-
-        for (; (ulong)aligned_i < (ulong)(mems[i]) + size; aligned_i = aligned_i + (20 * PAGE_SIZE)) {
-            cycles(&time_begin);
-            data = *aligned_i;
-            cycles(&time_end);
-            ++iterations;
-            time_total += (time_end - time_begin);
-        }
-    }
-
-    double mean = (double)(time_total) / (double)(iterations);
-    for (int i = 0; i < NUM_MEMS; i++) {
-        free(mems[i]);
-    }
-    
-    return mean;
-}
-
-double calc_mean(vlong trials[TRIALS_SIZE]) {
+double calc_mean(double * trials) 
+{
 	double mean = 0.0;
 
-	ulong i;
-    for (i = 0; i < TRIALS_SIZE; i++) {
+	int i;
+	for (i = 0; i < TRIALS; i++) 
+	{
 		mean += trials[i];
-    }
-    mean = mean / TRIALS_SIZE;
+	}
+	mean = mean / TRIALS;
 
-    return mean;
+	return mean;
 }
 
-double calc_stddev(vlong trials[TRIALS_SIZE], double mean) {
+double calc_stddev(double * trials, double mean) 
+{
 	double stddev = 0.0;
 
-	ulong i;
-	for (i = 0; i < TRIALS_SIZE; i++) {
+	int i;
+	for (i = 0; i < TRIALS; i++) 
+	{
 		double diff = trials[i] - mean;	
 		stddev = stddev + (diff * diff);
 	}
-    stddev = stddev / TRIALS_SIZE;
-    stddev = sqrt(stddev);
+	stddev = stddev / TRIALS;
+	stddev = sqrt(stddev);
 
-    return stddev;
+	return stddev;
 }
 
-void main(int argc, char *argv[]) {
-	// Contains trial timings in nanoseconds
-    vlong trials[TRIALS_SIZE];
-    
-	ulong i;
-    for (i = 0; i < TRIALS_SIZE; i++) {
-         trials[i] = time_fault();
-	} 
-
-    double mean = calc_mean(trials);
-    double stddev = calc_stddev(trials, mean);
-
-	print("(cycles) mean: %f\t stddev: %f\n", mean, stddev);
-
+void main(void) {
+	uvlong time_s = 0;
+	uvlong time_e = 0;
+	double total = 0.0;
+	int stride = ((1 << 10) * 4) + 1;
+	char * gig1 = malloc((1 << 30));
+	char * gig2 = malloc((1 << 30));
+	char * gig3 = malloc((1 << 30));
+	char * gig4 = malloc((1 << 30));
+	char * gig5 = malloc((1 << 30));
+	char * gig6 = malloc((1 << 30));
+	char * gig7 = malloc((1 << 30));
+	char * gig8 = malloc((1 << 30));
+	char * gig9 = malloc((1 << 30));
+	free(gig1);
+	free(gig2);
+	free(gig3);
+	free(gig4);
+	free(gig5);
+	free(gig6);
+	free(gig7);
+	free(gig8);
+	free(gig9);
 	exits(nil);
 }
+
