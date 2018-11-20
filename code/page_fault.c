@@ -32,13 +32,13 @@ double time_fault(void) {
     uvlong time_total, time_begin, time_end;
     for (int i = 0; i < NUM_MEMS; i++) {
         uchar data;
-        ulong i = (ulong)(mem[i]) + (PAGE_SIZE - ((ulong)(mem[i]) % PAGE_SIZE));
+        ulong i = (ulong)(mems[i]) + (PAGE_SIZE - ((ulong)(mems[i]) % PAGE_SIZE));
         uchar *aligned_i = (uchar*)i;
 
         print("aligned address: %d\n", (ulong)(aligned_i));
-        print("iterating until: %d\n", (ulong)(mem[i]) + size);
+        print("iterating until: %d\n", (ulong)(mems[i]) + size);
 
-        for (; (ulong)aligned_i < (ulong)(mem[i]) + size; aligned_i = aligned_i + (20 * PAGE_SIZE)) {
+        for (; (ulong)aligned_i < (ulong)(mems[i]) + size; aligned_i = aligned_i + (20 * PAGE_SIZE)) {
             cycles(&time_begin);
             data = *aligned_i;
             cycles(&time_end);
