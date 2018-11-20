@@ -89,7 +89,6 @@ void main( int argc, char *argv[]) {
 			measurements[i] = measurements[i] - pipe_overhead;
 			measurements[i] = measurements[i]/2.0;
 
-			print("context switch: %f\n", measurements[i]);
 		}
 		else
 		{
@@ -101,7 +100,9 @@ void main( int argc, char *argv[]) {
 	}
 
 	double mean = calc_mean(measurements);
-	print("context switch mu: %f\n", mean);
+	print("context switch mu (nsec): %f\n", mean / 2.5);
+	double std_dev = calc_stddev(measurements, mean);
+	print("context switch stddev (nsec): %f\n", std_dev / 2.5);
 
 	double last_min = 1000000000.0;
 	for(int i=0;i<TRIALS;i++)
@@ -111,7 +112,7 @@ void main( int argc, char *argv[]) {
 			last_min = measurements[i];
 		}
 	}
-	print("minimum context switch (cycles): %f\n", last_min);
+	print("minimum context switch (nsec): %f\n", last_min / 2.5);
 
 	exits(nil);
 }
