@@ -1,10 +1,9 @@
 #include <u.h>
 #include <libc.h>
 
-#define TRIALS_SIZE 64
-#define ARRAY_SIZE 800000
-#define ACCESS_COUNT 1000
 
+#define ARRAY_SIZE 800000
+#define TRIALS_SIZE 250
 
 double comparison(void) {
 
@@ -61,6 +60,8 @@ void main(int argc, char *argv[]) {
     uvlong time_tot = 0.0;
     uvlong time_begin, time_end;
     
+    double timings[TRIALS_SIZE];
+    
     double trials_comp[TRIALS_SIZE];
 
 	for(int i=0;i< TRIALS_SIZE;i++)
@@ -73,45 +74,52 @@ void main(int argc, char *argv[]) {
     
     print("Measuring only comparison in cycles\n");
 	print("mean: %f\t stddev: %f\n", mean_comp, stddev_comp);
-
+    
+   
     int *p = (int*) malloc(ARRAY_SIZE*sizeof(int));
-    double timing[ARRAY_SIZE/ACCESS_COUNT];
     
     //priming cache
     for (int j=0; j < 1000; j++)
     {
 	    for(int i = ARRAY_SIZE -1; i >= 0 ;i--)
-		{
-			p[i] = i;
-			if(p[i]==0)
-			{
-			}
-
+	    {
+			p[i] = 0;
 	    }
-    }
-
-    for( int m=1;m < ARRAY_SIZE/ACCESS_COUNT;m++)
-    {	
-    	time_tot = 0.0;
-	    for(int i = 0; i < ACCESS_COUNT ;i++)
-		{
-			cycles(&time_begin);
-			if(p[m*i]==0)
-			{
-			}
-			cycles(&time_end);
-			time_tot = time_tot + (time_end - time_begin) - mean_comp;
-	    }
-	    timing[m] = (double) time_tot/ACCESS_COUNT;
-	    
     }
     
-	print("timing:\n");
-	for(long int m=1; m < ARRAY_SIZE/ACCESS_COUNT;m=m+10)
-	{
-		print("avrg. time: %f\n", timing[m]);
+    for(int i=0;i< TRIALS_SIZE;i++)
+    {
+	    cycles(&time_begin);
+	    memset((void*) p,0,4*ARRAY_SIZE-1);
+	    cycles(&time_end);
+	    time_tot = (time_end - time_begin);
+	    timings[i] = (double) time_tot;
 	}
-	free(p);
+    
+    double mean = calc_mean(timings);
+    double stddev = calc_stddev(timings,mean);
+    
+    print("Measuring setting(writing) memory\n");
+	print("mean: %f\t stddev: %f\n", mean, stddev);
+	print("array size %d\n", ARRAY_SIZE);
+	
+	for(int i=0;i< TRIALS_SIZE;i++)
+    {
+	    cycles(&time_begin);
+	    memchr((void*) p,1,4*ARRAY_SIZE);
+	    cycles(&time_end);
+	    time_tot = (time_end - time_begin);
+	    timings[i] = (double) time_tot;// - ARRAY_SIZE*mean_comp;
+	}
+	
+	mean = calc_mean(timings);
+    stddev = calc_stddev(timings,mean);
+    
+    print("Measuring comparing memory\n");
+	print("mean: %f\t stddev: %f\n", mean, stddev);
+	print("array size %d\n", ARRAY_SIZE);
+	
+	print("cycles per bytes %f\n", mean/(4*ARRAY_SIZE));
 	
 	exits(nil);
 }
