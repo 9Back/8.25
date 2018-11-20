@@ -22,7 +22,7 @@ double time_loop(void) {
 		cycles(&time_begin);
 	}
 
-	return time_total / 16384000.0;
+	return time_total / 16384999.0;
 }
 
 double calc_mean(vlong trials[TRIALS_SIZE]) {
