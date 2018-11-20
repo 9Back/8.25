@@ -227,9 +227,9 @@ to be 223 cycles, or roughly 1.68 usec for that processor. Our processor is much
 putting the timing at around 100 nsec.
 %[https://www.ibm.com/developerworks/ community/blogs/kevgrig/entry /approximate_overhead_of_system_ calls9?lang=en]
 
-It is likely that the overhead of a syscall beyond this is pretty high due to the
-actual operations and implementation of the syscall operation. Thus, the cost could be 30 to
-40x the hardware cost.
+It is likely that the overhead of a syscall beyond this is pretty high due to
+the actual operations and implementation of the syscall operation. Thus, the
+cost could be 30 to 40x the hardware cost.
 
 That puts our estimate at around 3 to 4 usec.
 
@@ -238,10 +238,10 @@ That puts our estimate at around 3 to 4 usec.
     \begin{tabular}{ll}
             & System Call Overhead \\
     Hardware Guess  & 100 nsec  \\
-    Software Multiplier  & 30-40x           \\
-    Prediction  & 3-4 usec           \\
-    Average  & 4.835 usec           \\
-    Std Dev. & 0.056 usec          
+    Software Multiplier  & 10x \\  
+    Prediction  & 1 usec \\
+    Average  & 0.866 usec\\
+    Std Dev. & 0.0144 usec          
     \end{tabular}
 \caption{Syscall Overhead}
 \label{tab:syscalloverheads}
