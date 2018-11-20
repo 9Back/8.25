@@ -370,6 +370,11 @@ to measure the read bandwidth, we looped through the entire array, referencing
 each integer element one by one, and compensated for the loop overhead after
 averaging over all the times.
 
+Our memory bus bandwidth is about 10GB/s, so this serves as our predicted
+bandwidth for both reading and writing. We don't expect too much software
+overhead because we can directly read from and write to memory, provided the
+pages are faulted in for us.
+
 \begin{figure}
 	\centering
     \begin{tabular}{l r r}
@@ -380,6 +385,28 @@ averaging over all the times.
                    & Average & Std Dev.\\
       Write & 6.879842 & 1.9829 \\
       Read & 9.109494 & 1.2845
+\end{tabular}
+\caption{Memory Bandwidth}
+\label{tab:memorybandwidth}
+\end{figure}
+
+\subsection{Page Fault Service Time}
+We create an array of size greater than the physical RAM memory in order to
+force the memory management system to start swapping to disk. We then iterate 
+through this array by jumping in increments of 20 pages.
+
+We expect faulting in from disk to be on the order of milliseconds, since our
+filesystem is installed on a SSD.
+
+\begin{figure}
+	\centering
+    \begin{tabular}{l r r}
+      & Page fault time (ns) \\
+      Hardware & $10^6$\\
+      Software Multiplier & 1.5 \\
+      Prediction & $1.5 * 10^6$ \\
+                   & Average & Std Dev.\\
+      Page fault & TODO & TODO \\
 \end{tabular}
 \caption{Memory Bandwidth}
 \label{tab:memorybandwidth}
