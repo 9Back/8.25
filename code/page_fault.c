@@ -1,7 +1,7 @@
 #include <u.h>
 #include <libc.h>
 
-#define TRIALS 100
+#define TRIALS 1000000
 
 double calc_mean(double * trials) 
 {
@@ -36,26 +36,21 @@ double calc_stddev(double * trials, double mean)
 void main(void) {
 	uvlong time_s = 0;
 	uvlong time_e = 0;
-	double total = 0.0;
+	double timings[TRIALS];
 	int stride = ((1 << 10) * 4) + 1;
-	char * gig1 = malloc((1 << 30));
-	char * gig2 = malloc((1 << 30));
-	char * gig3 = malloc((1 << 30));
-	char * gig4 = malloc((1 << 30));
-	char * gig5 = malloc((1 << 30));
-	char * gig6 = malloc((1 << 30));
-	char * gig7 = malloc((1 << 30));
-	char * gig8 = malloc((1 << 30));
-	char * gig9 = malloc((1 << 30));
+	char * gig1 = malloc(4 * (1 << 10));
+	for (int i = 0; i < TRIALS; i++) {
+		int fd = open("/dev/random", OREAD);
+		cycles(&time_s);
+		read(fd, gig1, 1);
+		cycles(&time_e);
+		close(fd);
+		timings[i] = (double) (time_e - time_s);
+	}
+	double mean = calc_mean(timings);
+	double std_dev = calc_stddev(timings, mean);
+	print("Mean (nsec): %f, StdDev (nsec): %f\n", mean / 2.5, std_dev / 2.5);
 	free(gig1);
-	free(gig2);
-	free(gig3);
-	free(gig4);
-	free(gig5);
-	free(gig6);
-	free(gig7);
-	free(gig8);
-	free(gig9);
 	exits(nil);
 }
 
