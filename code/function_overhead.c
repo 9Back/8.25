@@ -1,127 +1,187 @@
 #include <u.h>
 #include <libc.h>
 
-#define LENGTH 20000
+#define TRIALS 20000
 
 uvlong time_begin=0;
 uvlong time_end=0;
 double time_diff=0;
 
-void func1(void)
+void func0(void)
 {
-
+}
+void func1(int a)
+{
+}
+void func2(int a, int b)
+{
+}
+void func3(int a, int b, int c)
+{
+}
+void func4(int a, int b, int c, int d)
+{
+}
+void func5(int a, int b, int c, int d, int e)
+{
+}
+void func6(int a, int b, int c, int d, int e, int f)
+{
+}
+void func7(int a, int b, int c, int d, int e, int f, int g)
+{
+}
+void func8(int a, int b, int c, int d, int e, int f, int g, int h)
+{
 }
 
-
-int func2(int value1, int value2)
+double calc_mean(double * trials) 
 {
-	return 0;
+	double mean = 0.0;
+
+	int i;
+	for (i = 0; i < TRIALS; i++) 
+	{
+		mean += trials[i];
+	}
+	mean = mean / TRIALS;
+
+	return mean;
 }
 
-int func3(int value1, int value2, int value3, int value4, int value5, int value6, int value7, int value8 )
+double calc_stddev(double * trials, double mean) 
 {
-	int val = value1;
-	int val2 = value2;
-	return val;
+	double stddev = 0.0;
+
+	int i;
+	for (i = 0; i < TRIALS; i++) 
+	{
+		double diff = trials[i] - mean;	
+		stddev = stddev + (diff * diff);
+	}
+	stddev = stddev / TRIALS;
+	stddev = sqrt(stddev);
+
+	return stddev;
 }
 
 void main(int argc, char *argv[]) {
-	
-	for(int i=0;i<LENGTH;i++)
-	{
-	    func1();
-	    func2(1,1);
-	    func3(1,2,3,4,5,6,7,8);
-	}
-	
-	double measurements[LENGTH];
+
+	double measurements[TRIALS];
 	double mean=0;
-	double mean2=0;
-	double mean3=0;
+	double stddev=0;
 
-	double standarddev=0;
+	print("Args, Mean (nsec), StdDev (nsec)\n", mean, stddev);
 
-	//measureing empty function
-	for(int i=0;i<LENGTH;i++)
+	//measuring empty function
+	for(int i=0;i<TRIALS;i++)
 	{
-       cycles(&time_begin);
-	   func1();
-       cycles(&time_end);
-	   measurements[i] =  (time_end - time_begin);
-	   mean = mean + measurements[i];
+		cycles(&time_begin);
+		func0();
+		cycles(&time_end);
+		measurements[i] = (time_end - time_begin);
 	}
 	
-	mean = mean/LENGTH;
+	mean = calc_mean(measurements) / 2.5;
+	stddev = calc_stddev(measurements, mean) / 2.5;
+	print("%d, %f, %f\n", 0, mean, stddev);
 
-	for(int i=0;i<LENGTH;i++)
+	for(int i=0;i<TRIALS;i++)
 	{
-		standarddev = standarddev + (measurements[i] - mean)*(measurements[i] - mean);
+		cycles(&time_begin);
+		func1(1);
+		cycles(&time_end);
+		measurements[i] = (time_end - time_begin);
 	}
 	
-	standarddev = standarddev/LENGTH;
-	standarddev = sqrt(standarddev);  
+	mean = calc_mean(measurements) / 2.5;
+	stddev = calc_stddev(measurements, mean) / 2.5;
+	print("%d, %f, %f\n", 1, mean, stddev);
 
-	print("empty function mean (cycles): %f\n", mean);
-	print("empty function stddev (cycles): %f\n", standarddev);
 
-	standarddev = 0.0;
-
-	//measuring function call with input parameters
-	for(int i=0;i<LENGTH;i++)
+	for(int i=0;i<TRIALS;i++)
 	{
-       cycles(&time_begin);
-	   func2(1000,1000);
-       cycles(&time_end);
-	   measurements[i] =  (time_end - time_begin);
-	   mean2 = mean2 + measurements[i];
+		cycles(&time_begin);
+		func2(1, 2);
+		cycles(&time_end);
+		measurements[i] = (time_end - time_begin);
 	}
 	
-	mean2 = mean2/LENGTH;
+	mean = calc_mean(measurements) / 2.5;
+	stddev = calc_stddev(measurements, mean) / 2.5;
+	print("%d, %f, %f\n", 2, mean, stddev);
 
-	for(int i=0;i<LENGTH;i++)
+	for(int i=0;i<TRIALS;i++)
 	{
-		standarddev = standarddev + (measurements[i] - mean2)*(measurements[i] - mean2);
+		cycles(&time_begin);
+		func3(1, 2, 3);
+		cycles(&time_end);
+		measurements[i] = (time_end - time_begin);
 	}
 	
-	standarddev = standarddev/LENGTH;
-	standarddev = sqrt(standarddev);
-	  
+	mean = calc_mean(measurements) / 2.5;
+	stddev = calc_stddev(measurements, mean) / 2.5;
+	print("%d, %f, %f\n", 3, mean, stddev);
 
-	print("function call with input parameters mean (cycles): %f\n", mean2);
-	print("function call with input parameters stddev (cycles): %f\n", standarddev);
-
-	standarddev=0.0;
-
-	//measuring function call with input+return
-	for(int i=0;i<LENGTH;i++)
+	for(int i=0;i<TRIALS;i++)
 	{
-       cycles(&time_begin);
-	   func3(1000,1000,3,4,5,6,7,8);
-       cycles(&time_end);
-	   measurements[i] =  (time_end - time_begin);
-	   mean3 = mean3 + measurements[i];
+		cycles(&time_begin);
+		func4(1, 2, 3, 4);
+		cycles(&time_end);
+		measurements[i] = (time_end - time_begin);
 	}
 	
-	mean3 = mean3/LENGTH;
+	mean = calc_mean(measurements) / 2.5;
+	stddev = calc_stddev(measurements, mean) / 2.5;
+	print("%d, %f, %f\n", 4, mean, stddev);
 
-	for(int i=0;i<LENGTH;i++)
+	for(int i=0;i<TRIALS;i++)
 	{
-	    standarddev = standarddev + (measurements[i] - mean3)*(measurements[i] - mean3);
+		cycles(&time_begin);
+		func5(1, 2, 3, 4, 5);
+		cycles(&time_end);
+		measurements[i] = (time_end - time_begin);
 	}
 	
-	standarddev = standarddev/LENGTH;
-	standarddev = sqrt(standarddev);
+	mean = calc_mean(measurements) / 2.5;
+	stddev = calc_stddev(measurements, mean) / 2.5;
+	print("%d, %f, %f\n", 5, mean, stddev);
 
-	print("function call with input+return mean (cycles): %f\n", mean3);
-	print("function call with input+return stddev (cycles): %f\n", standarddev);
+	for(int i=0;i<TRIALS;i++)
+	{
+		cycles(&time_begin);
+		func6(1, 2, 3, 4 ,5, 6);
+		cycles(&time_end);
+		measurements[i] = (time_end - time_begin);
+	}
+	
+	mean = calc_mean(measurements) / 2.5;
+	stddev = calc_stddev(measurements, mean) / 2.5;
+	print("%d, %f, %f\n", 6, mean, stddev);
 
-	double diff=mean2-mean;
+	for(int i=0;i<TRIALS;i++)
+	{
+		cycles(&time_begin);
+		func7(1, 2, 3, 4, 5, 6, 7);
+		cycles(&time_end);
+		measurements[i] = (time_end - time_begin);
+	}
+	
+	mean = calc_mean(measurements) / 2.5;
+	stddev = calc_stddev(measurements, mean) / 2.5;
+	print("%d, %f, %f\n", 7, mean, stddev);
 
-	print("difference func and func2 (cycles): %f\n", diff);
-
-	diff = mean3- mean2;
-
-	print("difference func2 and func2 (cycles): %f\n", diff);
+	for(int i=0;i<TRIALS;i++)
+	{
+		cycles(&time_begin);
+		func8(1, 2, 3, 4, 5, 6, 7, 8);
+		cycles(&time_end);
+		measurements[i] = (time_end - time_begin);
+	}
+	
+	mean = calc_mean(measurements) / 2.5;
+	stddev = calc_stddev(measurements, mean) / 2.5;
+	print("%d, %f, %f\n", 8, mean, stddev);
 
 	exits(nil);
 }	

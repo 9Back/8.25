@@ -8,7 +8,6 @@ mem_bw: mem_bw.c
 	8c mem_bw.c
 	8l -o mem_bw mem_bw.8
 
-
 syscall:
 	8c syscall.c
 	8l -o syscall syscall.8

@@ -227,9 +227,9 @@ to be 223 cycles, or roughly 1.68 usec for that processor. Our processor is much
 putting the timing at around 100 nsec.
 %[https://www.ibm.com/developerworks/ community/blogs/kevgrig/entry /approximate_overhead_of_system_ calls9?lang=en]
 
-It is likely that the overhead of a syscall beyond this is pretty high due to the
-actual operations and implementation of the syscall operation. Thus, the cost could be 30 to
-40x the hardware cost.
+It is likely that the overhead of a syscall beyond this is pretty high due to
+the actual operations and implementation of the syscall operation. Thus, the
+cost could be 30 to 40x the hardware cost.
 
 That puts our estimate at around 3 to 4 usec.
 
@@ -238,10 +238,10 @@ That puts our estimate at around 3 to 4 usec.
     \begin{tabular}{ll}
             & System Call Overhead \\
     Hardware Guess  & 100 nsec  \\
-    Software Multiplier  & 30-40x           \\
-    Prediction  & 3-4 usec           \\
-    Average  & 4.835 usec           \\
-    Std Dev. & 0.056 usec          
+    Software Multiplier  & 10x \\  
+    Prediction  & 1 usec \\
+    Average  & 0.866 usec\\
+    Std Dev. & 0.0144 usec          
     \end{tabular}
 \caption{Syscall Overhead}
 \label{tab:syscalloverheads}
@@ -257,14 +257,15 @@ each type of \texttt{fork} and we average over all of these calls. This methodol
 results from the fact that Plan 9 does not have kernel threads.
 
 The hardware costs of a light fork should be much less than a heavy fork, since
-resources do not need to be shared, but because our processes are minimal, it is
-likely this difference is negligible. Still, this whole process will take tens of thousands to
-millions of cycles, meaning thousands of microseconds, maybe 500 usec with a 1,000,000 cycles.
+resources do not need to be shared, but because our processes are minimal, it
+is likely this difference is negligible. Still, this whole process will take
+tens of thousands to millions of cycles, meaning thousands of microseconds,
+maybe 500 usec with a 1,000,000 cycles.
 [http://ithare.com/infographics-operation-costs-in-cpu-clock-cycles/]
 
-The software costs are most likely pretty low since Plan 9's rfork mechanism is relatively light
-weight and similar to the Unix version of fork. It might only scale this already tremendous
-runtime by a factor of two or so.
+The software costs are most likely pretty low since Plan 9's rfork mechanism is
+relatively light weight and similar to the Unix version of fork. It might only
+scale this already tremendous runtime by a factor of two or so.
 
 That puts our estimate at around 1000 usec for both fork operations.
 
@@ -272,11 +273,11 @@ That puts our estimate at around 1000 usec for both fork operations.
 	\centering
 \begin{tabular}{lll}
         & Light Fork & Heavy Fork \\
-Hardware Guess & 500 usec                 & 500 usec                  \\
-Software Multiplier & 2x                 & 2x                  \\
-Prediction & 1000 usec                 & 1000 usec                  \\
-Average & 1080 usec                 & 1114 usec                  \\
-Std Dev & 278 usec                  & 344 usec                  
+Hardware Guess & 500 usec & 500 usec \\
+Software Multiplier & 2x & 2x \\
+Prediction & 1000 usec & 1000 usec \\
+Average & 27.250  usec & 28.674  usec \\
+Std Dev & 1.83 usec & 58.068 usec                  
 \end{tabular}
 \caption{Fork Overheads}
 \label{tab:forkoverheads}
@@ -318,9 +319,9 @@ To measure ram access time allocated a $1.6$ GB array on the heap, and iterated 
 Hardware Cost  & 1100 nsec  \\
 Software Multiplier  & 40x   \\
 Prediction  & 44 usec    \\
-Average  & 42.048 usec    \\
+Average  & 13.458 usec    \\
 Std Dev. & 9.569 usec     \\
-Min      & 12.491 usec   
+Min      & 7.862 usec   
 \end{tabular}
 \caption{Context Switch Overheads}
 \label{tab:conswitchoverheads}
@@ -334,6 +335,11 @@ to measure the read bandwidth, we looped through the entire array, referencing
 each integer element one by one, and compensated for the loop overhead after
 averaging over all the times.
 
+Our memory bus bandwidth is about 10GB/s, so this serves as our predicted
+bandwidth for both reading and writing. We don't expect too much software
+overhead because we can directly read from and write to memory, provided the
+pages are faulted in for us.
+
 \begin{figure}
 	\centering
     \begin{tabular}{l r r}
@@ -344,6 +350,28 @@ averaging over all the times.
                    & Average & Std Dev.\\
       Write & 6.879842 & 1.9829 \\
       Read & 9.109494 & 1.2845
+\end{tabular}
+\caption{Memory Bandwidth}
+\label{tab:memorybandwidth}
+\end{figure}
+
+\subsection{Page Fault Service Time}
+We create an array of size greater than the physical RAM memory in order to
+force the memory management system to start swapping to disk. We then iterate 
+through this array by jumping in increments of 20 pages.
+
+We expect faulting in from disk to be on the order of milliseconds, since our
+filesystem is installed on a SSD.
+
+\begin{figure}
+	\centering
+    \begin{tabular}{l r r}
+      & Page fault time (ns) \\
+      Hardware & $10^6$\\
+      Software Multiplier & 1.5 \\
+      Prediction & $1.5 * 10^6$ \\
+                   & Average & Std Dev.\\
+      Page fault & TODO & TODO \\
 \end{tabular}
 \caption{Memory Bandwidth}
 \label{tab:memorybandwidth}
