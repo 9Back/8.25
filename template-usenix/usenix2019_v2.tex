@@ -352,6 +352,14 @@ Min      & 12.491 usec
 \label{tab:conswitchoverheads}
 \end{figure}
 
+\subsection{RAM Bandwidth}
+We measured RAM bandwidth by allocating an array of size TODO size, and
+iterated through it to measure read and write bandwidth. For the write
+bandwidth, we use \texttt{memset} to write to the entire array. In order to
+measure the read bandwidth, we looped through the entire array, referencing
+each integer element one by one, and compensated for the loop overhead after
+averaging over all the times.
+
 \subsection{Discussion}
 \textit{Compare the measured performance with the predicted performance. If they are wildly different, speculate on reasons why. What may be contributing to the overhead?}
     Our hardware estimates were very, very rough. It'd be worthwhile to go back and double check these and discuss with our classmates on the numbers we arrived at.
