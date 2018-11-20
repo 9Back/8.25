@@ -1,117 +1,60 @@
 #include <u.h>
 #include <libc.h>
 
-#define TRIALS_SIZE 64
-#define ARRAY_SIZE 800000
-#define ACCESS_COUNT 1000
+#define TRIALS_SIZE 100
 
-
-double comparison(void) {
-
-    uvlong time_tot = 0.0;
-    uvlong time_begin, time_end;
-
-	ulong i;
-	// start trying to read time
-    for (i = 0; i < 16384; i++) 
-    {
-        cycles(&time_begin);
-        if(0==0)
-		{
-		}
-        cycles(&time_end);
-        time_tot = time_tot + (time_end - time_begin);
-	}
-
-    return time_tot / (16384.0);
-}
-
-double calc_mean(double trials[TRIALS_SIZE]) 
+double calc_mean(double * trials) 
 {
 	double mean = 0.0;
 
-	ulong i;
-    for (i = 0; i < TRIALS_SIZE; i++) 
-    {
+	int i;
+	for (i = 0; i < TRIALS_SIZE; i++) 
+	{
 		mean += trials[i];
-    }
-    mean = mean / TRIALS_SIZE;
+	}
+	mean = mean / TRIALS_SIZE;
 
-    return mean;
+	return mean;
 }
 
-double calc_stddev(double trials[TRIALS_SIZE], double mean) 
+double calc_stddev(double * trials, double mean) 
 {
 	double stddev = 0.0;
 
-    ulong i;
+	int i;
 	for (i = 0; i < TRIALS_SIZE; i++) 
 	{
 		double diff = trials[i] - mean;	
 		stddev = stddev + (diff * diff);
 	}
-    stddev = stddev / TRIALS_SIZE;
-    stddev = sqrt(stddev);
+	stddev = stddev / TRIALS_SIZE;
+	stddev = sqrt(stddev);
 
-    return stddev;
+	return stddev;
 }
 
-void main(int argc, char *argv[]) {
+void main(void) {
+	uvlong time_s = 0;
+	uvlong time_e = 0;
+	uvlong res = 0;
+	uvlong total = 0;
+	double timings[TRIALS_SIZE];
+	char * mything = malloc(1600 * (1 << 20));
 
-    uvlong time_tot = 0.0;
-    uvlong time_begin, time_end;
-    
-    double trials_comp[TRIALS_SIZE];
-
-	for(int i=0;i< TRIALS_SIZE;i++)
-	{
-		trials_comp[i] = comparison();
+	print("Stride, Mean, StdDev\n");
+	for (int stride = 1; stride < ((1 << 20) * 16); stride = (int) (1.1 * stride + 1)) {
+		for (int i = 0; i < TRIALS_SIZE; i++) {
+			cycles(&time_s);
+			if (mything[i * stride] == 420) {}
+			cycles(&time_e);
+			res = (double) (time_e - time_s);
+			timings[i] = res;
+		}
+		double mean = calc_mean(timings);
+		double std_dev = calc_stddev(timings, mean);
+		print("%d, %f, %f\n", stride, mean, std_dev);
 	}
-    
-    double mean_comp = calc_mean(trials_comp);
-    double stddev_comp = calc_stddev(trials_comp, mean_comp);
-    
-    print("Measuring only comparison in cycles\n");
-	print("mean: %f\t stddev: %f\n", mean_comp, stddev_comp);
 
-    int *p = (int*) malloc(ARRAY_SIZE*sizeof(int));
-    double timing[ARRAY_SIZE/ACCESS_COUNT];
-    
-    //priming cache
-    for (int j=0; j < 1000; j++)
-    {
-	    for(int i = ARRAY_SIZE -1; i >= 0 ;i--)
-		{
-			p[i] = i;
-			if(p[i]==0)
-			{
-			}
-
-	    }
-    }
-
-    for( int m=1;m < ARRAY_SIZE/ACCESS_COUNT;m++)
-    {	
-    	time_tot = 0.0;
-	    for(int i = 0; i < ACCESS_COUNT ;i++)
-		{
-			cycles(&time_begin);
-			if(p[m*i]==0)
-			{
-			}
-			cycles(&time_end);
-			time_tot = time_tot + (time_end - time_begin) - mean_comp;
-	    }
-	    timing[m] = (double) time_tot/ACCESS_COUNT;
-	    
-    }
-    
-	print("timing:\n");
-	for(long int m=1; m < ARRAY_SIZE/ACCESS_COUNT;m=m+10)
-	{
-		print("avrg. time: %f\n", timing[m]);
-	}
-	free(p);
-	
+	free(mything);
 	exits(nil);
 }
