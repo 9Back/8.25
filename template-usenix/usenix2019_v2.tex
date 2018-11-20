@@ -28,6 +28,8 @@
 
 \usepackage{pgfplots}
 \pgfplotsset{compat=newest}
+\usepackage{footnote}
+\makesavenoteenv{tabular}
 
 
 \begin{document}
@@ -304,12 +306,36 @@ The software cost to a context switch for Plan 9 is going to be huge. Probably o
 This puts our prediction right around 44 usec.
 
 \subsection{RAM Access Time}
-To measure ram access time allocated a $1.6$ GB array on the heap, and iterated through it with changing stride size to hit L1, L2 cache and finally memory. The stride size gets increased by factor 1.1 for each iteration.
+To measure ram access time we allocate a $1.6$ GB array on the heap, and iterated through it with changing stride size to hit L1, L2 cache and finally memory. The stride size gets increased by factor 1.01 for each iteration. Predictions are presented in fig.~\ref{tab:accesstimepred}, while the measurements are presented in fig.~\ref{tab:accesstime}. Figure~\ref{fig:memlatency} presents the plot of the mean in orange and standard deviation in blue with the last index accessed in the iteration on the $x$ axis, and memory access latency is displayed on a logarithmic scale $y$ axis. The measurements are not completely free of overhead, but still a transition from L1 to L2, and from L2 to memory is visible in the graph. 
+
+\begin{figure}
+	\centering
+	
+	\begin{tabular}{lll}
+		prediction L1 latency  & 2-3 cycles & 0.8-1.2 nsec  \\
+		prediction L2 latency  & 10 cycles  & 4 nsec \\
+		prediction memory latency  & 100 cycles   & 40 nsec \\
+	\end{tabular}
+	\caption{RAM access time prediction}
+	\label{tab:accesstimepred}
+\end{figure}
+
+\begin{figure}
+	\centering
+
+	\begin{tabular}{ll}
+		L1 latency  & 6 nsec  \\
+		L2 latency  & 10 nsec  \\
+		Memory   & 250 nsec   \\
+	\end{tabular}
+	\caption{RAM access time measurements}
+	\label{tab:accesstime}
+\end{figure}
 
 \begin{figure}
 	\centering
 	\input{mytikz.tex}
-	\caption{Ram access time with size of the memory region accessed on $x$  axis in an logarithmic scale and latency in seconds on the $y$ axis. The orange graph displays the mean latency, while the blue graph displays the standard deviation}
+	\caption{RAM access time with size of the memory region accessed on $x$  axis in an logarithmic scale and logarithmic latency in seconds on the $y$ axis. The orange graph displays the mean latency, while the blue graph displays the standard deviation}
 	\label{fig:memlatency}
 \end{figure}
 
@@ -349,12 +375,12 @@ pages are faulted in for us.
       Prediction & 8\\
                    & Average & Std Dev.\\
       Write & 6.879842 & 1.9829 \\
-      Read & 9.109494 & 1.2845
+      Read\protect\footnotemark & 9.109494  & 1.2845
 \end{tabular}
 \caption{Memory Bandwidth}
 \label{tab:memorybandwidth}
 \end{figure}
-
+\footnotetext{This measurement was done using optimization, without it the read speed is 1.17 }
 \subsection{Page Fault Service Time}
 We create an array of size greater than the physical RAM memory in order to
 force the memory management system to start swapping to disk. We then iterate 
