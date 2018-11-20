@@ -382,41 +382,38 @@ pages are faulted in for us.
 \end{figure}
 \footnotetext{This measurement was done using optimization, without it the read speed is 1.17 }
 \subsection{Page Fault Service Time}
-We create an array of size greater than the physical RAM memory in order to
-force the memory management system to start swapping to disk. We then iterate 
-through this array by jumping in increments of 20 pages.
+Since getting pages to reliably swap to disk in plan 9 remained difficult due to imposed memory limits on processes, as well as random process deaths for no good reason, as well as failing calls to \texttt{brk}, and crashes when the swap file was overloaded. In light of the instability of high-memory demand approaches, we chose a different approach to page fault service time. In order to measure the Page Fault service time, we repeatedly opened the \texttt{/dev/random/} file, read in a single byte, and then closed the file. We timed the time it took to read that single byte; concurrent monitoring of page fault statistics on the machine informed us that this was causing repeated page faults from disk. Thus, we had our measurement of the service time. Articles were split on the timing for page faults: putting it anywhere between 1 and 4 microseconds for an SSD. Thus, we expected page fault timings to be somewhere around this.
 
-We expect faulting in from disk to be on the order of milliseconds, since our
-filesystem is installed on a SSD.
+In the end, this prediction seemed to be a bit too conservative, though close; the actual page fault service timing of the SSD was slightly less that 2 microseconds, leading to an overall timing of around 1800 nanoseconds.
 
 \begin{figure}
 	\centering
     \begin{tabular}{l r r}
       & Page fault time (ns) \\
-      Hardware & $10^6$\\
+      Hardware & $2000$\\
       Software Multiplier & 1.5 \\
-      Prediction & $1.5 * 10^6$ \\
+      Prediction & $1.5 * 2000$ \\
                    & Average & Std Dev.\\
-      Page fault & TODO & TODO \\
+      Actual Timing & 1804.887 & 374.341 \\
 \end{tabular}
-\caption{Memory Bandwidth}
-\label{tab:memorybandwidth}
+\caption{Page Fault Servicing}
+\label{tab:pagefault}
 \end{figure}
 
 \subsection{Discussion}
 \textit{Compare the measured performance with the predicted performance. If they are wildly different, speculate on reasons why. What may be contributing to the overhead?}
-    Our hardware estimates were very, very rough. It'd be worthwhile to go back and double check these and discuss with our classmates on the numbers we arrived at.
+
+This go-around our paper is probably less structured than previously, since we all worked on the various sections at the same time. It most likely needs some polishing and a read through before it is really ready. However, we have cleaned up the code for our prior benchmarks, so we should be getting pretty accurate results at this point.
 
     
     \textit{Evaluate the success of your methodology. How accurate do you think your results are?}
-    Our results agree with the Plan 9 paper, which is suprising given that our processor is a bit faster. It will be worth it to discuss with Geoff our results and what we might try looking into going forward. It was hard to ensure we were taking the best approach. We certainly measured roughly what we wanted to measure.
-
-\textit{Answer any questions specifically mentioned with the operation.}
-The issue here is that there are no kernel threads in Plan 9, so some of the CPU measurement questions did not apply
+    Our results are now a bit faster than the Plan 9 paper, which is expected given that our processor is faster, although I don't think we've rigorously sanity checked them. It was hard to ensure we were taking the best approach, but in each case it seems that we measured what we were trying to measure, to good approximation.
 
 \section{Conclusion}
 
-We should try to correct our idea of hardware cycle counts for typical instructions and discuss the manners in which we chose to benchmark in order to make sure they are the absolute best way to measure these values, or something close to it. 
+Okay, so this time we had a bit less time to clean up the writing and make sure everything is clear, so we might need to go back through a bit of this in the coming two weeks and make it readable so that the final report is something we can be proud of. Other than that, it seems we have most of our code working as expected, and a nice development workflow inside Plan 9 itself; I'm writing this inside an emacs editor inside of an mrxvt window inside of \textit{equis} graphical window multiplexed via a linux emulator running on top of an rc shell window inside of rio inside of Plan 9. \\
+
+As opposed to earlier weeks, it should be smooth sailing from here. Once we clean up this paper a bit and present our results coherently, we should be ready to tackle the next part of the benchmarking. We probably need to get some feedback on our results so far, but that can wait till next monday. It has been a crazy ride!
 
 {\normalsize \bibliographystyle{acm}
 \bibliography{../common/bibliography}}
