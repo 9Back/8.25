@@ -132,10 +132,16 @@ For each section, we report the base hardware performance, make a guess as to ho
 
 The following section reports overheads of reading time. One trial involves looping over 16 \texttt{cycles} timing calls, $2^{16}$ times. We average out for each call of \texttt{cycles}, and we do 64 trials altogether.
 
-Since we imagine getting the current cycles clock is a fast operation, so we estimate the hardware performance to be on the scale of nanoseconds, since one clock cycle takes approximately 1 nanoseconds. We think that the \texttt{cycles} call should do something similar to reading from the cycle counter, so it may be a bit slower, perhaps on the order of 10ns.
+Since we imagine getting the current cycles clock is a fast operation, so we
+estimate the hardware performance to be on the scale of nanoseconds, since one
+clock cycle takes approximately 1 nanoseconds. We think that the
+\texttt{cycles} call should do something similar to reading from the cycle
+counter, so it may be a bit slower, perhaps on the order of 10ns.
 [https://www.7-cpu.com/cpu/SandyBridge.html]
 
-The software cost of this, however, will be tremendous, since that value must be moved out from a register and potentially to a variable, and a syscall must be made, the result might be aroudn 10 to 30 times the hardware cost.
+The software cost of this, however, will be tremendous, since that value must
+be moved out from a register and potentially to a variable, and a syscall must
+be made, the result might be aroudn 10 to 30 times the hardware cost.
 
 This would put our predicted cost at around 100 to 300 nanoseconds.
 
@@ -149,7 +155,8 @@ each trial, and perform 64 trials. We average over all of these trials.
 The cost of doing a single for loop based branch in hardware is also very low.
 Assuming a compare, jump, and register increment takes 3 cycles, and adding
 2 cycles for rare branch mispredictions, the loop overhead should be around
-5 cycles. Adding software uncertainties, the loop overhead could be 50 cycles.
+5 cycles. Adding software uncertainties, the loop overhead could be about
+50 nanoseconds.
 [https://www.7-cpu.com/cpu/SandyBridge.html]
 
 Software, again, will slow this down, as well as the rest of the operating
@@ -162,12 +169,12 @@ Thus, our predicted cost is around 2 microseconds.
 \begin{figure}
 	\centering
     \begin{tabular}{lll}
-      & Reading (cycles) & Loop (cycles) \\
-Hardware Guess  & 100 nsec &  5\\
+      & Reading (ns) & Loop (ns) \\
+Hardware Guess  & 100 & 2\\
 Software Multiplier & 10-30 & 10 \\
-Prediction & 1-3 usec & 50\\
-Average  & 2.080 usec & 43 \\
-Std Dev. & 0.006 usec & 0
+Prediction & 1-3 usec & 20\\
+Average  & 11 & 17.2 \\
+Std Dev. & 0 & 0
 \end{tabular}
 \caption{Measurement Overheads}
 \label{tab:generaloverheads}
