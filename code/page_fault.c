@@ -4,6 +4,7 @@
 #define TRIALS_SIZE 4
 // TODO change this according to the page size (run sysinfo)
 #define PAGE_SIZE 4096
+#define NUM_MEMS 32
 
 struct thing {
     // TODO change this if need to allocate lotsa memory...   
@@ -13,34 +14,43 @@ struct thing {
 double time_fault(void) {
     // TODO change this size according to the physical RAM
     ulong size = (1 << 28) * sizeof(struct thing);
-    uchar *mem = (uchar*)malloc(size);
+    uchar* mems[NUM_MEMS];
+    for (int i = 0; i < NUM_MEMS; i++) {
+        mems[i] = (uchar*)malloc(size);
+    }
 	print("sizeof ulong: %d\n", sizeof(ulong));
-    print("allocated size %d\n", size);
+    print("allocated size %d, allocated %d of them.\n", size, NUM_MEMS);
 
     // TODO generate huge bin file larger than the size of physical memory 
     int fd = open("file.bin", OREAD);
-    read(fd, mem, size);
+    for (int i = 0; i < NUM_MEMS; i++) {
+        read(fd, mems[i], size);
+    }
     close(fd);
 
-    uchar data;
-    ulong i = (ulong)(mem) + (PAGE_SIZE - ((ulong)(mem) % PAGE_SIZE));
-    uchar *aligned_i = (uchar*)i;
-
-    print("aligned address: %d\n", (ulong)(aligned_i));
-    print("iterating until: %d\n", (ulong)(mem) + size);
-
-    uvlong time_total, time_begin, time_end;
     ulong iterations = 0;
-    for (; (ulong)aligned_i < (ulong)(mem) + size; aligned_i = aligned_i + (20 * PAGE_SIZE)) {
-        cycles(&time_begin);
-        data = *aligned_i;
-        cycles(&time_end);
-        ++iterations;
-        time_total += (time_end - time_begin);
+    uvlong time_total, time_begin, time_end;
+    for (int i = 0; i < NUM_MEMS; i++) {
+        uchar data;
+        ulong i = (ulong)(mems[i]) + (PAGE_SIZE - ((ulong)(mems[i]) % PAGE_SIZE));
+        uchar *aligned_i = (uchar*)i;
+
+        print("aligned address: %d\n", (ulong)(aligned_i));
+        print("iterating until: %d\n", (ulong)(mems[i]) + size);
+
+        for (; (ulong)aligned_i < (ulong)(mems[i]) + size; aligned_i = aligned_i + (20 * PAGE_SIZE)) {
+            cycles(&time_begin);
+            data = *aligned_i;
+            cycles(&time_end);
+            ++iterations;
+            time_total += (time_end - time_begin);
+        }
     }
 
     double mean = (double)(time_total) / (double)(iterations);
-    free(mem);
+    for (int i = 0; i < NUM_MEMS; i++) {
+        free(mems[i]);
+    }
     
     return mean;
 }
