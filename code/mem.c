@@ -42,7 +42,7 @@ void main(void) {
 	char * mything = malloc(1600 * (1 << 20));
 
 	print("Stride, Mean, StdDev\n");
-	for (int stride = 1; stride < ((1 << 20) * 16); stride = (int) (1.1 * stride + 1)) {
+	for (int stride = 1; stride < ((1 << 20) * 16); stride = ((stride * 1.01) + 1)) {
 		for (int i = 0; i < TRIALS_SIZE; i++) {
 			cycles(&time_s);
 			if (mything[i * stride] == 420) {}
