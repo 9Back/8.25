@@ -257,14 +257,15 @@ each type of \texttt{fork} and we average over all of these calls. This methodol
 results from the fact that Plan 9 does not have kernel threads.
 
 The hardware costs of a light fork should be much less than a heavy fork, since
-resources do not need to be shared, but because our processes are minimal, it is
-likely this difference is negligible. Still, this whole process will take tens of thousands to
-millions of cycles, meaning thousands of microseconds, maybe 500 usec with a 1,000,000 cycles.
+resources do not need to be shared, but because our processes are minimal, it
+is likely this difference is negligible. Still, this whole process will take
+tens of thousands to millions of cycles, meaning thousands of microseconds,
+maybe 500 usec with a 1,000,000 cycles.
 [http://ithare.com/infographics-operation-costs-in-cpu-clock-cycles/]
 
-The software costs are most likely pretty low since Plan 9's rfork mechanism is relatively light
-weight and similar to the Unix version of fork. It might only scale this already tremendous
-runtime by a factor of two or so.
+The software costs are most likely pretty low since Plan 9's rfork mechanism is
+relatively light weight and similar to the Unix version of fork. It might only
+scale this already tremendous runtime by a factor of two or so.
 
 That puts our estimate at around 1000 usec for both fork operations.
 
@@ -272,11 +273,11 @@ That puts our estimate at around 1000 usec for both fork operations.
 	\centering
 \begin{tabular}{lll}
         & Light Fork & Heavy Fork \\
-Hardware Guess & 500 usec                 & 500 usec                  \\
-Software Multiplier & 2x                 & 2x                  \\
-Prediction & 1000 usec                 & 1000 usec                  \\
-Average & 1080 usec                 & 1114 usec                  \\
-Std Dev & 278 usec                  & 344 usec                  
+Hardware Guess & 500 usec & 500 usec \\
+Software Multiplier & 2x & 2x \\
+Prediction & 1000 usec & 1000 usec \\
+Average & 27.250  usec & 28.674  usec \\
+Std Dev & 1.83 usec & 58.068 usec                  
 \end{tabular}
 \caption{Fork Overheads}
 \label{tab:forkoverheads}
