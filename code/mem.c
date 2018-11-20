@@ -80,9 +80,9 @@ void main(int argc, char *argv[]) {
     //priming cache
     for (int j=0; j < 1000; j++)
     {
-	    for(long unsigned int i = ARRAY_SIZE -1; i >= 0 ;i--)
+	    for(int i = ARRAY_SIZE -1; i >= 0 ;i--)
 		{
-			p[(int) i] = (int) i;
+			p[i] = i;
 			if(p[i]==0)
 			{
 			}
@@ -90,7 +90,7 @@ void main(int argc, char *argv[]) {
 	    }
     }
 
-    for(long int m=1;m < ARRAY_SIZE/ACCESS_COUNT;m++)
+    for( int m=1;m < ARRAY_SIZE/ACCESS_COUNT;m++)
     {	
     	time_tot = 0.0;
 	    for(int i = 0; i < ACCESS_COUNT ;i++)
