@@ -25,6 +25,11 @@
 
 \documentclass[letterpaper,twocolumn,10pt]{article}
 \usepackage{usenix2019,epsfig,endnotes}
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+
+
 \begin{document}
 
 %don't want date printed
@@ -156,7 +161,7 @@ Thus, our predicted cost is around 2 microseconds.
     \begin{tabular}{lll}
          & Reading nsec & Loop \\
 Hardware Guess  & 100 nsec              &  100 nsec                 \\
-Software Multiplier & 10-30              & 20
+Software Multiplier & 10-30              & 20		\\
 Prediction & 1-3 usec                     & 2 usec                  \\
 Average  & 2.080 usec                     & 2.084 usec                  \\
 Std Dev. & 0.006 usec                     & 0.0034 usec                
@@ -210,7 +215,7 @@ over 64 trials.
 Data from IBM puts the cost of making a system call on the Pentium processor in 1997/1995
 to be 223 cycles, or roughly 1.68 usec for that processor. Our processor is much faster,
 putting the timing at around 100 nsec.
-[https://www.ibm.com/developerworks/ community/blogs/kevgrig/entry /approximate_overhead_of_system_ calls9?lang=en]
+%[https://www.ibm.com/developerworks/ community/blogs/kevgrig/entry /approximate_overhead_of_system_ calls9?lang=en]
 
 It is likely that the overhead of a syscall beyond this is pretty high due to the
 actual operations and implementation of the syscall operation. Thus, the cost could be 30 to
@@ -287,6 +292,52 @@ The software cost to a context switch for Plan 9 is going to be huge. Probably o
 
 This puts our prediction right around 44 usec.
 
+\subsection{RAM Access Time}
+To measure ram access time allocated a $1.6$ GB array on the heap, and iterated through it with changing stride size to hit L1, L2 cache and finally memory. The stride size gets increased by factor 1.1 for each iteration.
+
+\begin{figure}
+	\centering
+	% This file was created by matplotlib2tikz vx.y.z.
+	\begin{tikzpicture}
+	
+	\definecolor{color1}{rgb}{0.203921568627451,0.541176470588235,0.741176470588235}
+	\definecolor{color0}{rgb}{0.886274509803922,0.290196078431373,0.2}
+	
+	\begin{axis}[
+	title={Simple plot $\frac{\alpha}{2}$},
+	xlabel={time (s)},
+	ylabel={Voltage (mV)},
+	xmin=-0.095, xmax=1.995,
+	ymin=-1.1, ymax=1.1,
+	tick align=outside,
+	tick pos=left,
+	xmajorgrids,
+	x grid style={white},
+	ymajorgrids,
+	y grid style={white},
+	axis line style={white},
+	axis background/.style={fill=white!89.803921568627459!black}
+	]
+	\addplot [line width=1.64pt, color0, mark=*, mark size=3, mark options={solid}]
+	table {%
+		0 0
+		0.1 0.587785252292473
+		% [...]
+		1.9 -0.587785252292473
+	};
+	\addplot [line width=1.64pt, color1, mark=*, mark size=3, mark options={solid}]
+	table {%
+		0 1
+		0.1 0.809016994374947
+		% [...]
+		1.9 0.809016994374947
+	};
+	\end{axis}
+	
+	\end{tikzpicture}
+	\caption{Ram access time with size of the memory region accessed on $x$ axis and latency in seconds on the $y$ axis}
+\end{figure}
+
 \begin{figure}
 	\centering
 \begin{tabular}{ll}
@@ -320,7 +371,7 @@ We should try to correct our idea of hardware cycle counts for typical instructi
 \bibliography{../common/bibliography}}
 
 
-\theendnotes
+%\theendnotes
 
 \end{document}
 
