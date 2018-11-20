@@ -4,11 +4,11 @@
 #define ARRAY_SIZE 5000000
 #define TRIALS_SIZE 250
 
-double calc_mean(double trials[TRIALS_SIZE]) 
+double calc_mean(double * trials) 
 {
 	double mean = 0.0;
 
-	ulong i;
+	int i;
 	for (i = 0; i < TRIALS_SIZE; i++) 
 	{
 		mean += trials[i];
@@ -18,11 +18,11 @@ double calc_mean(double trials[TRIALS_SIZE])
 	return mean;
 }
 
-double calc_stddev(double trials[TRIALS_SIZE], double mean) 
+double calc_stddev(double * trials, double mean) 
 {
 	double stddev = 0.0;
 
-	ulong i;
+	int i;
 	for (i = 0; i < TRIALS_SIZE; i++) 
 	{
 		double diff = trials[i] - mean;	
@@ -39,24 +39,15 @@ void main(int argc, char *argv[]) {
 	double time_tot = 0.0;
 	uvlong time_begin, time_end;
 
-	double loop_time = 0;
-	for (int i = 0; i < TRIALS_SIZE; i++) {
-		cycles(&time_begin);
-		for (int j = 0; j < ARRAY_SIZE; j++) {
-		}
-		cycles(&time_end);
-		loop_time += time_end - time_begin;
-	}
-	loop_time /= TRIALS_SIZE;
-
 	double timings[TRIALS_SIZE];
 	double trials_comp[TRIALS_SIZE];
+
 	int *p = (int*) malloc(ARRAY_SIZE*sizeof(int));
 
 	for(int i=0;i< TRIALS_SIZE;i++)
 	{
 		cycles(&time_begin);
-		memset((void*) p,0,4*ARRAY_SIZE-1);
+		memset((void*) p,0,sizeof(int)*ARRAY_SIZE-1);
 		cycles(&time_end);
 		timings[i] = (double) (time_end - time_begin);
 	}
@@ -82,7 +73,7 @@ void main(int argc, char *argv[]) {
 		timings[i] = (double) (time_end - time_begin);
 	}
 
-	mean = calc_mean(timings) - loop_time;
+	mean = calc_mean(timings);
 	std_dev = calc_stddev(timings, mean);
 	cycles_per_byte = mean / (ARRAY_SIZE * 4);
 	gb_per_second = ((1 / cycles_per_byte) * 2500000000) / (1024 * 1024 * 1024);
