@@ -51,7 +51,7 @@ double do_size_trial(int size) {
     int read_size = 1 << 14;
     int actual_read_size = num_bytes < read_size ? num_bytes : read_size;
 
-	char* data = malloc(read_size * sizeof(char));
+	char* data = malloc(actual_read_size * sizeof(char));
 
     double tot_cycles = 0.0;
     for (int i = 0; i < INNER_TRIALS; i++) {
