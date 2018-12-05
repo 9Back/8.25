@@ -4,7 +4,6 @@
 
 // TODO change this MAX_SIZE to something greater than 1GB (30)
 #define MAX_SIZE 28 // file sizes up to 2^MAX_SIZE bytes
-#define MAX_SIZE 28
 #define MAX_FILENAME_SIZE 64
 
 void main(void) {
