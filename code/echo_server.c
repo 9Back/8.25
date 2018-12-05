@@ -14,8 +14,8 @@ int net_test(void)
     for(;;){
         /* listen for a call */
         lcfd = listen(adir, ldir);
-        if(lcfd < 0)
-            return −1;
+       // if(lcfd < 0)
+        //    return −1;
         /* fork a process to echo */
         switch(fork()){
         //case −1:
