@@ -41,4 +41,5 @@ int net_test(void)
 void main(int argc, char *argv[])
 {
     net_test();
+    exits(nil);
 }
