@@ -46,20 +46,29 @@ double do_size_trial(int size) {
 	uvlong time_e = 0;
 
     int fd = open(filename, OREAD);
-	char* data = malloc(num_bytes * sizeof(char));
 
-    double tot_cycles;
+    // read in blocks of 4 pages at a time.
+    int read_size = 1 << 14;
+    int actual_read_size = num_bytes < read_size ? num_bytes : read_size;
+
+	char* data = malloc(read_size * sizeof(char));
+
+    double tot_cycles = 0.0;
     for (int i = 0; i < INNER_TRIALS; i++) {
-		cycles(&time_s);
-		read(fd, data, num_bytes);
-		cycles(&time_e);
-
-        tot_cycles += time_e - time_s; 
+        for (int j = 0; j < (num_bytes / actual_read_size); j++) {
+            cycles(&time_s);
+            read(fd, data, actual_read_size);
+            cycles(&time_e);
+            tot_cycles += time_e - time_s; 
+        }
+        // reset back to the beginning of the file 
+        seek(fd, 0, 0);
     }
-
+    
     free(data);
+    close(fd);
     free(filename);
-    return (double)(tot_cycles) / INNER_TRIALS;
+    return (double)(tot_cycles) / (INNER_TRIALS * (num_bytes / actual_read_size));
 }
 
 void main(void) {
@@ -79,7 +88,7 @@ void main(void) {
     for (int i = 0; i < MAX_SIZE; i++) {
         means[i] = calc_mean(timings[i]);
         std_devs[i] = calc_stddev(timings[i], means[i]);
-        print("%i\t%f\t%f\n", (1 << i), means[i], std_devs[i]);
+        print("%d\t%f\t%f\n", (1 << i), means[i], std_devs[i]);
     }
 	exits(nil);
 }
