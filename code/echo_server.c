@@ -7,6 +7,7 @@ int net_test(void)
     char adir[40], ldir[40];
     int n;
     char buf[256];
+    int tmp;
 
     acfd = announce("tcp!*!7", adir);
     if(acfd < 0)
@@ -15,7 +16,8 @@ int net_test(void)
         /* listen for a call */
         lcfd = listen(adir, ldir);
         if(lcfd < 0)
-            return −1;
+            tmp = -1;
+            return tmp;
         /* fork a process to echo */
         switch(fork()){
         case −1:
