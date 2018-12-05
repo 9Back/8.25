@@ -2,7 +2,7 @@
 #include <libc.h>
 #include <stdio.h>
 
-#define MAX_SIZE 31
+#define MAX_SIZE 28
 #define MAX_FILENAME_SIZE 64
 
 void main(void) {
@@ -18,6 +18,8 @@ void main(void) {
         int prep_fd = create(filename, OWRITE | OTRUNC, 420);
         write(prep_fd, data, (1 << i));
         close(prep_fd); 
+
+        free(filename);
 	}
     close(fd);
     free(data);
