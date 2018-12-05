@@ -40,7 +40,11 @@ int net_test(void)
 
             /* echo until EOF */
             while((n = read(dfd, buf, sizeof(buf))) > 0)
+            {
+                print("%s\n", buf);
                 write(dfd, buf, n);
+            }
+
             exits(0);
         default:
             close(lcfd);
