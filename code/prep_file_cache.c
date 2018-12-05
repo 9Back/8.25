@@ -1,8 +1,9 @@
 #include <u.h>
 #include <libc.h>
+#include <stdio.h>
 
-#define MAX_SIZE 26
-#define MAX_FILENAME_SIZE 256
+#define MAX_SIZE 31
+#define MAX_FILENAME_SIZE 64
 
 void main(void) {
     char* data = malloc(1 << MAX_SIZE);
