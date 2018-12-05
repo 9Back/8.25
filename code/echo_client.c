@@ -6,7 +6,7 @@ void main(int argc, char *argv[])
     char buf[256] = {"a"};
     int n;
 
-    int fd = dial("tcp!127.0.0.1!7",0,0,0);
+    int fd = dial("tcp!10.0.2.15!7",0,0,0);
 
     if(fd == -1)
     {
