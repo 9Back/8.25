@@ -128,7 +128,7 @@ double do_random_trial(int size) {
     fclose(fp);
     free(filename);
 
-    return (double)(tot_cycles) / (INNER_TRIALS * num_steps));
+    return (double)(tot_cycles) / (INNER_TRIALS * num_steps);
 }
 
 void main(void) {
@@ -139,8 +139,8 @@ void main(void) {
     // experience the file cache time, not the L1/memory cache time
     for (int j = 0; j < TRIALS; j++) {
         for (int i = 0; i < MAX_SIZE; i++) {
-            timings_seq[i][j] = do_trial_seq(i);
-            timings_rand[i][j] = do_trial_rand(i);
+            timings_seq[i][j] = do_sequential_trial(i);
+            timings_rand[i][j] = do_random_trial(i);
         }
     }
 
