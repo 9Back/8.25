@@ -535,7 +535,7 @@ The methodology for this experiment was reasonable, as it was the measurement wa
       Software Multiplier & 1 \\
       Prediction & $1Gb/s$ \\
                    & Average & Std Dev.\\
-        Actual Timing & 0.3374 (sec / 256 Mb) &  0.0193 (sec / 256 Mb) \\
+        Actual Timing (sec / 256 Mb) & 0.3374&  0.0193 \\
         Transfer Rate & 758.71 Mb/s &  - \\
 \end{tabular}
 \caption{Peak Bandwidth}
@@ -588,6 +588,13 @@ by no more than 10\%.
 When reading from the file cache, we would then expect our read bandwidth to be
 at about 7GB/s.
 
+\begin{figure}
+	\centering
+	\includegraphics{graphs/file_cache}
+  \caption{Graph of file read bandwidth vs. file size}
+	\label{fig:filecache}
+\end{figure}
+
 % looks like we weren't able to read a large enough file to determine where the
 % file cache is?
 \subsection{File Read Time}
@@ -613,6 +620,20 @@ interface to disable the use of buffering reads and writes using
 \texttt{setvbuf}.
 % TODO approximations
 
+\begin{figure}
+	\centering
+	\includegraphics{graphs/file_read_seq}
+  \caption{Graph of file sequential read bandwidth vs. file size}
+	\label{fig:filecache}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics{graphs/file_read_rand}
+  \caption{Graph of file random read bandwidth vs. file size}
+	\label{fig:filecache}
+\end{figure}
+
 \subsection{Remote File Read Time}
 Finally, we are able to take advantage of one of Plan 9's most unique features:
 remote filesystem mounting. We were able to mount a public Plan 9 file server
@@ -629,6 +650,12 @@ from random 1MB long files (of which there are 32 to choose from) in 4K sized
 chunks. We then measure the bandwidth experienced by a constant process as more
 processes are forked in the background.
 
+\begin{figure}
+	\centering
+	\includegraphics{graphs/contention}
+  \caption{Graph of file read bandwidth vs. number of contending processors}
+	\label{fig:filecache}
+\end{figure}
 \section{Conclusion and a note on Citations}
 
 Citations for various ideas on hardware timings are spread throughout the paper as footnotes 
