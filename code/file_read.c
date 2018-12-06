@@ -17,8 +17,8 @@
 // TODO change this MAX_SIZE to something greater than 1GB (30)
 #define MAX_SIZE 28 // file sizes up to 2^MAX_SIZE bytes
 #define MAX_FILENAME_SIZE 64
-#define TRIALS 4
-#define INNER_TRIALS 4
+#define TRIALS 2
+#define INNER_TRIALS 2
 #define READ_STRIDE (1 << 14)   // read READ_STRIDE bytes at a time
 
 /**
@@ -159,6 +159,7 @@ void main(void) {
                 timings_seq[i][j] = do_sequential_trial(i);
                 timings_rand[i][j] = do_random_trial(i);
             }
+            print("power of 2: %d/%d\n", i, MAX_SIZE);
         }
         print("trial: %d/%d\n", j, TRIALS);
     }
