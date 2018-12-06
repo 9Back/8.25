@@ -38,12 +38,12 @@ void main(int argc, char *argv[])
 {
     double measurments[TRIALS];
     uvlong time_begin=0;
-    uvling time_end=0;
+    uvlong time_end=0;
     double time_diff = 0.0;
 
     char buf[256];
 
-    for(i=0;i<256;i++)
+    for(int i=0;i<256;i++)
     {
         buf[i] = "a";
     }
