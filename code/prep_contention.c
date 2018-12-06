@@ -2,7 +2,7 @@
 #include <libc.h>
 #include <stdio.h>
 
-#define SIZE 20  // file sizes of 2^SIZE bytes
+#define SIZE 18 // file sizes of 2^SIZE bytes
 // Number of concurrent procs doing accesses to different files 
 #define NUM_PROCS 64    
 #define MAX_FILENAME_SIZE 64

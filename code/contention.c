@@ -2,10 +2,10 @@
 #include <libc.h>
 #include <stdio.h>
 
-#define INNER_TRIALS 4
-#define TRIALS 128
+#define INNER_TRIALS 2
+#define TRIALS 4
 
-#define SIZE 20  // file sizes of 2^SIZE bytes
+#define SIZE 18  // file sizes of 2^SIZE bytes
 // Number of concurrent procs doing accesses to different files 
 #define NUM_PROCS 64    
 #define MAX_FILENAME_SIZE 64
@@ -117,6 +117,7 @@ void main(int argc, char *argv[]) {
 	double timings[NUM_PROCS][TRIALS];
 
     for (int i = 0; i < NUM_PROCS; i++) {
+        print("Contending processes: %d\n", i);
         for (int j = 0; j < TRIALS; j++) { 
             timings[i][j] = do_trial();
         }

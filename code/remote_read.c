@@ -107,13 +107,47 @@ double do_trial(void) {
     return ((double)(tot_cycles_byte) / dir_size);
 }
 
+double do_trial_single_file(void) {
+    char *filename = "/n/pkg/386/openssh-2012.03.15.tbz";
+	char* data = malloc(READ_STRIDE * sizeof(char));
+
+    int fd = open(filename, OREAD);
+
+	uvlong time_s = 0;
+	uvlong time_e = 0;
+
+    int read_times = cur_dir.length / READ_STRIDE;
+    if (cur_dir.length % READ_STRIDE > 0) {
+        // take into account filesizes not perfectly fitting
+        read_times += 1;
+    }
+    double tot_cycles = 0.0;
+    for (int i = 0; i < read_times; i++) {
+        if (i == read_times - 1 && cur_dir.length % READ_STRIDE > 0) {
+            cycles(&time_s);
+            read(fd, data, cur_dir.length % READ_STRIDE); 
+            cycles(&time_e);
+        } else {
+            cycles(&time_s);
+            read(fd, data, READ_STRIDE);
+            cycles(&time_e);
+        }
+        tot_cycles += time_e - time_s; 
+    }
+
+    close(fd);
+    free(data);
+
+    return tot_cycles / 5262444.0;
+}
+
 void main(void) {
 	double timings[TRIALS];
 
     // intentionally read a different file size, to make sure all trials
     // experience the file cache time, not the L1/memory cache time
     for (int j = 0; j < TRIALS; j++) {
-        timings[j] = do_trial();
+        timings[j] = do_trial_single_file();
     }
 
     print("mean (cycles/byte)\tstddev (cycles/byte)\n");
