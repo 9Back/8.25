@@ -146,7 +146,8 @@ estimate the hardware performance to be on the scale of nanoseconds, since one
 clock cycle takes approximately 0.5 nanoseconds. We think that the
 \texttt{cycles} call should do something similar to reading from the cycle
 counter, so it should be almost instantaneos, perhaps on the order of 2ns.
-[Page 547 of https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-2b-manual.pdf]
+\footnote{Page 547 of https://www.intel.com/content/dam/www/public/us/en/\\ 
+documents/manuals/64-ia-32-architectures-software-developer-vol-2b-manual.pdf}
 
 The software cost of this should be low to non-existent, since that value is 
 directly loaded into two registers, which might be directly examined under normal 
@@ -172,7 +173,7 @@ The cost of doing a single for loop based branch in hardware is also very low.
 Assuming a compare, jump, and register increment take 3 to 5 cycles, and adding
 additional overheads for branch misprediction, the loop overhead should be around
 10 cycles. 
-[Patterson, David A.; Hennessy, John L. Computer Organization and Design: The Hardware/Software Interface.]
+\footnote{Patterson, David A.; Hennessy, John L. Computer Organization and Design: The Hardware/Software Interface.}
 
 Software, will slow this down due to random interruptions while executing, as mentioned before.
 Other system processes may need the processor, and thus the latency might be roughly twice 
@@ -207,7 +208,7 @@ we then proceeded to call eacah of these functions 20000 times, and found the av
 
 The hardware cost of a procedure call using the standard c calling convention should not be that high, as it is almost all done in registers. The caller pushes the arguments to the stack (very little cost), saves the return address, the frame pointer, and calls the function. There is also all the take-down cost for the function call, and the jumping of the instruction pointer, which will clear the incoming buffer of instructions. The hardware cost of this should be significant but not insane; we
 are thinking on the order of 30 cycles, so around 15 or less nsec.
-[https://9p.io/sys/doc/compiler.html]
+\footnote{https://9p.io/sys/doc/compiler.html}
 
 The software cost of a function call in plan 9 is remarkably small, as the compiler stores all argument positions relative to a stack pointer, and thus needs to consider only one piece of metadata while making a call. There is still the threat of context switches, so the software cost may be a multiplier between 1 and 2.
 
@@ -249,7 +250,8 @@ over 64 trials.
 Data from IBM puts the cost of making a system call on the Pentium processor in 1997/1995
 to be 223 cycles, or roughly 1.68 usec for that processor. Our processor is much faster,
 putting the timing at around 100 nsec.
-%[https://www.ibm.com/developerworks/ community/blogs/kevgrig/entry /approximate_overhead_of_system_ calls9?lang=en]
+\footnote{https://www.ibm.com/developerworks/community/blogs/kevgrig/entry 
+/approximate\_overhead\_of\_system\_ calls9?lang=en}
 
 It is likely that the overhead of a syscall beyond this is pretty high due to
 the actual operations and implementation of the syscall operation. Thus, the
@@ -292,7 +294,7 @@ resources do not need to be shared, but because our processes are minimal, it
 is likely this difference is negligible. Plan 9 adopts a very similar memory management
 scheme to Unix, and so fork semantics are roughly equivalent, including copy-on-write. (The 
 following citation contains a breakdown of almost every line in the Plan 9 kernel source code).
-[http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.75.5409&rep=rep1&type=pdf]. The number
+\footnote{http://citeseerx.ist.psu.edu/viewdoc/download? doi=10.1.1.75.5409\&rep=rep1\&type=pdf}. The number
 of cycles involved in forking a process is likely huge, however, and in the tens of thousands of 
 cycles, since all sorts of meta data (such as the page table) needs to be copied over. There 
 aren't many good resources online which have benchmarked the number of cycles involved in a fork.
@@ -337,7 +339,7 @@ the time of a context switch, we take the minimum time over all of these trials.
 
 We estimated the base hardware cost of context switching while pinned to a single CPU to
 be on the order of around 1600 ns based upon benchmarks done on the Intel E5-2620, another
-Sandy Bridge processor model. [https://blog.tsunanet.net/2010/11/how-long-does-it-take-to-make-context.html]
+Sandy Bridge processor model. \footnote{https://blog.tsunanet.net/2010/11/how-long-does-it-take-to-make-context.html}
 
 Our prediction for the software cost of this is going to be quite large, most likely around 10x, since there
 are so many factors involved and our method of triggering a context switch is not the most scientific 
@@ -370,7 +372,9 @@ Min      & 7.862 usec
 
 To measure ram access time we allocate a $1.6$ GB array on the heap, and iterated through it with changing stride size to hit L1, L2 cache and finally memory. The stride size gets increased by factor 1.01 for each iteration. Predictions are presented in fig.~\ref{tab:accesstimepred}, while the measurements are presented in fig.~\ref{tab:accesstime}. Figure~\ref{fig:memlatency} presents the plot of the mean in orange and standard deviation in blue with the last index accessed in the iteration on the $x$ axis, and memory access latency is displayed on a logarithmic scale $y$ axis. The measurements are not completely free of overhead, but still a transition from L1 to L2, and from L2 to memory is visible in the graph. 
 
-We estimated the base hardware cost of memory accesses based upon well documented knowledge of the timings of such memory accesses. According to work done on breaking AES, L1 cach is available after 3 cycles, L2 after 11, and memory after this takes hundreds of cycles. [http://palms.ee.princeton.edu/system/files/Cache-timing+attacks+on+AES.pdf]
+We estimated the base hardware cost of memory accesses based upon well documented knowledge of the timings of such memory accesses. According to work done on breaking AES, L1 cach is available after 3 cycles, L2 after 11, and memory after this takes hundreds of cycles. 
+\footnote{http://palms.ee.princeton.edu/system/files/Cache-timing+attacks+
+on+AES.pdf}
 
 For measurements like the one outlined above, there is very little software cost involved; thus our software overhead estimate is a multiplier of 1.
 
@@ -463,7 +467,8 @@ Since getting pages to reliably swap to disk in Plan 9 remained difficult due to
 mapped 4 kilobyte array, read in a single byte, and then stopped execution. We timed the time it took to read that single byte; concurrent monitoring of page fault statistics on the machine informed us that this was causing 16 repeated page faults from disk. Thus, we had our measurement of the service time. 
 
 Articles were split on the timing for page faults: putting it around 3 microseconds for an SSD. Thus, we expected page fault timings to be somewhere around this. 
-https://pdfs.semanticscholar.org/dd0a/dcde7d074a414a9df76fb20d52a0d8aa8c71.pdf
+\footnote{https://pdfs.semanticscholar.org/dd0a/
+dcde7d074a414a9df76fb20d52a0d8aa8c71.pdf}
 
 In the end, this prediction seemed to be a bit too conservative; the actual page fault service timing of the SSD was around 2.3 microseconds. Our results are summarised exactly in table 10. The SSD tested on is only a few months old, and it is possible that access speeds have gone up. It is also possible that we are missing some latency due to caching effects, though this is unlikely. 
 
@@ -514,7 +519,7 @@ Our methodology for this experiment was fine, but could have been improved throu
 \label{tab:roundtrip}
 \end{figure}
 \subsection{Peak Bandwidth}
-In order to measure peak bandwidth across the loopback, we instantated a TCP server and client and sent 256*(1 << 20) bytes over the wire, and measured how long it took. We then used this to measure the throughput in Mb/s over 1000 trials.
+In order to measure peak bandwidth across the loopback, we instantated a TCP server and client and sent 256*(1 << 20) bytes over the wire, and measured how long it took. We then used this to measure the throughput in Mb/s over 100 trials.
 
 Since this is a direct datastream over the loopback, which may go through the NIC or may be optimized through IPC, we estimate software to play less of a role in influencing the outcome of this test, and believe that it will be determined by the hardware: notably, it is likely that the hardware will dominate, and speeds will reach up to the promised 1 Gb/s of the device.
 
@@ -530,7 +535,8 @@ The methodology for this experiment was reasonable, as it was the measurement wa
       Software Multiplier & 1 \\
       Prediction & $1Gb/s$ \\
                    & Average & Std Dev.\\
-      Actual Timing & 758.71 Mb/s & 13.219 Mb/s \\
+        Actual Timing & 0.3374 (sec / 256 Mb) &  0.0193 (sec / 256 Mb) \\
+        Transfer Rate & 758.71 Mb/s &  - \\
 \end{tabular}
 \caption{Peak Bandwidth}
 \label{tab:peakbandwidth}
@@ -623,20 +629,12 @@ from random 1MB long files (of which there are 32 to choose from) in 4K sized
 chunks. We then measure the bandwidth experienced by a constant process as more
 processes are forked in the background.
 
-\subsection{Discussion}
-\textit{Compare the measured performance with the predicted performance. If they are wildly different, speculate on reasons why. What may be contributing to the overhead?}
+\section{Conclusion and a note on Citations}
 
-This go-around our paper is probably less structured than previously, since we all worked on the various sections at the same time. It most likely needs some polishing and a read through before it is really ready. However, we have cleaned up the code for our prior benchmarks, so we should be getting pretty accurate results at this point.
+Citations for various ideas on hardware timings are spread throughout the paper as footnotes 
+ease of reference. 
 
-    
-    \textit{Evaluate the success of your methodology. How accurate do you think your results are?}
-    Our results are now a bit faster than the Plan 9 paper, which is expected given that our processor is faster, although I don't think we've rigorously sanity checked them. It was hard to ensure we were taking the best approach, but in each case it seems that we measured what we were trying to measure, to good approximation.
 
-\section{Conclusion}
-
-Okay, so this time we had a bit less time to clean up the writing and make sure everything is clear, so we might need to go back through a bit of this in the coming two weeks and make it readable so that the final report is something we can be proud of. Other than that, it seems we have most of our code working as expected, and a nice development workflow inside Plan 9 itself; I'm writing this inside an emacs editor inside of an mrxvt window inside of \textit{equis} graphical window multiplexed via a linux emulator running on top of an rc shell window inside of rio inside of Plan 9. \\
-
-As opposed to earlier weeks, it should be smooth sailing from here. Once we clean up this paper a bit and present our results coherently, we should be ready to tackle the next part of the benchmarking. We probably need to get some feedback on our results so far, but that can wait till next monday. It has been a crazy ride!
 
 {\normalsize \bibliographystyle{acm}
 \bibliography{../common/bibliography}}
