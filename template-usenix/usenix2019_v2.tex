@@ -595,8 +595,15 @@ at about 7GB/s.
 	\label{fig:filecache}
 \end{figure}
 
-% looks like we weren't able to read a large enough file to determine where the
-% file cache is?
+From the graph we can see that the file bandwidth decreased dramatically from
+reading 1KB large files to reading 32KB large files. This seems to be the effect
+of moving through larger CPU caches. From 32KB to 8MB we see that the read
+bandwidth remains relatively constant. We guess that the file buffer cache is
+8MB large because the bandwidth (0.6GB/s) suggests that we are within the
+ballpark for reading from memory, alhtough this bandwidth is far lower than
+what we predicted it to be. Perhaps we did not saturate the bus as we were
+reading only 16KB at a time.
+
 \subsection{File Read Time}
 To measure the file read time, we vary the file size we are reading over from
 1B to 4MB. We then read from these files 16KB at a time, compensating in the
@@ -642,10 +649,27 @@ time to read a remote file into main memory. Again we averaged only over two
 trials, since we found that we were already averaging the read speed over many
 bytes (a 5MB file) anyways.
 
-We predicted to see a fair amount of network latency while doing the measurement,
-and this is exactly what we saw. Even though remote files were "mounted", they 
-still needed to be requested over 9p, which is an inefficient protocol, and 
-not as optimized as newer implementations of TCP. 
+We imagine that the main bottleneck of this remote read is the inefficiencies
+of the 9p protocol, as streaming runes over IP is not as fast as sending packets
+over TCP. We think that the hardware should not account for a great decrease
+in bandwidth: the network card has a bandwidth of 1Gb/s, and our memory bus
+is measured at 8GB/s. Our internet connection on the university network is
+on average 16MB/s. We think the software multiplier decreases
+the bandwidth by 1000x.
+
+\begin{figure}
+	\centering
+    \begin{tabular}{lr}
+      & Bandwidth\\
+Hardware Guess  & 16MB/s\\
+Software Multiplier & 0.0001\\
+Prediction & 10KB/s\\
+Average  & 77KB/s\\
+Std Dev. & 15KB/s
+\end{tabular}
+\caption{Remote File Read}
+\label{tab:generaloverheads}
+\end{figure}
 
 \subsection{Contention}
 To measure the effect of contending processes performing reads on different
@@ -666,31 +690,17 @@ increases, the log of the bandwidth in bytes/s decreases linearly.
   \caption{Graph of file read bandwidth vs. number of contending processors}
 	\label{fig:filecache}
 \end{figure}
-\section{Conclusion and a note on Citations}
+\section{Conclusion and a note on Citations, Summary Table}
 
 Citations for various ideas on hardware timings are spread throughout the paper as footnotes 
-ease of reference. 
+ease of reference. Instead of including a summary table, we have chosen to include a mixture of 
+tables and graphs, which, when paired with the text, convey the same information; this was due to 
+difficulties in providing clear hardware estimates and predictions for some of the more complex 
+cases of benchmarking, such as contention bandwidth.
 
-\begin{tabular*}{\textwidth}{c @{\extracolsep{\fill}} ccccc}
-    Operation & Base Hardware Performance & Estimated Software Overhead & Predicted Time & Measured Time \\
-    Measurment Overhead (Reading) & 1ns & 2-10ns & 2-10ns & 11ns \\
-    Measurment Overhead (Loop) & 5ns & 2ns & 10ns & 17.2ns \\
-    Procedure Call & 15 ns & 1-2x & 17ns & aprx. 15ns \\
-    Syscall & 100ns & 10x & 1000ns & aprx. 861ns \\
-    Fork (Light) & 30us & 1x & 30us & aprx. 27us \\
-    Fork (Heavy) & 30us & 1x & 30us & aprx. 28us \\
-    Context Switch & 1600ns & 10x & 16us & aprx. 13us \\
-    L1 Latency & 1600ns & 10x & 16us & aprx. 13us \\
-    L2 Latency & 1600ns & 10x & 16us & aprx. 13us \\
-    Memory & 1600ns & 10x & 16us & aprx. 13us \\
-    Memory Bandwidth & 1600ns & 10x & 16us & aprx. 13us \\
-    Page Fault Servicing & 1600ns & 10x & 16us & aprx. 13us \\
-    RTT & 1600ns & 10x & 16us & aprx. 13us \\
-    Peak Bandwidth & 1600ns & 10x & 16us & aprx. 13us \\
-    Setup TCP & 1600ns & 10x & 16us & aprx. 13us \\
-    Teardown TCP & 1600ns & 10x & 16us & aprx. 13us \\
-\end{tabular*}
-
+People will not know what we have done here today, but we will know, and we will live with it. 
+When you see us on public transit, you will not know, but we will know. We will know that 9
+is not a courtesy but a necessity. We will have 9 in our hearts. We have been through it.
 
 
 {\normalsize \bibliographystyle{acm}
