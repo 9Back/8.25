@@ -17,7 +17,7 @@ void main(int argc, char *argv[])
     write(fd,buf,sizeof(buf));
     while((n = read(fd,buf,sizeof(buf)))> 0)
     {
-        printf("%s\n", buf);
+        print("%s\n", buf);
     }
 
     print("reading from buffer\n");
