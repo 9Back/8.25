@@ -96,8 +96,8 @@ double do_trial(void) {
             tot_cycles += time_e - time_s; 
         }
         tot_cycles_byte += tot_cycles / cur_dir.length;
-        print("Finished reading: %s, bytes: %d, tot_cycles: %f\n",
-                cur_dir.name, cur_dir.length, tot_cycles);
+        print("Finished reading: %s, bytes: %d, tot_cycles/byte: %f\n",
+                cur_dir.name, cur_dir.length, tot_cycles_byte);
         close(fd);
     }
 
