@@ -2,10 +2,23 @@
 #include <libc.h>
 #include <stdio.h>
 
-#define MAX_SIZE 28
+/**
+ * Before running this program, generate the files necessary using
+ * 8c prep_file_cache.c
+ * 8l prep_file_cache.8
+ * ./8.out
+ *
+ * This will generate files of sizes in powers of two up to MAX_SIZE, as
+ * defined in prep_file_cache.c. Therefore MAX_SIZE should match in both of
+ * these files.
+ */
+
+// TODO change this MAX_SIZE to something greater than 1GB (30)
+#define MAX_SIZE 28 // file sizes up to 2^MAX_SIZE bytes
 #define MAX_FILENAME_SIZE 64
 #define TRIALS 32
 #define INNER_TRIALS 8
+#define READ_STRIDE (1 << 14)   // read READ_STRIDE bytes at a time
 
 double calc_mean(double * trials) 
 {
@@ -48,7 +61,7 @@ double do_size_trial(int size) {
     int fd = open(filename, OREAD);
 
     // read in blocks of 4 pages at a time.
-    int read_size = 1 << 14;
+    int read_size = READ_STRIDE;
     int actual_read_size = num_bytes < read_size ? num_bytes : read_size;
 
 	char* data = malloc(actual_read_size * sizeof(char));

@@ -3,10 +3,23 @@
 #include <stdio.h>
 #include <disk.h>
 
-#define MAX_SIZE 28
+/**
+ * Before running this program, generate the files necessary using
+ * 8c prep_file_cache.c
+ * 8l prep_file_cache.8
+ * ./8.out
+ *
+ * This will generate files of sizes in powers of two up to MAX_SIZE, as
+ * defined in prep_file_cache.c. Therefore MAX_SIZE should match in both of
+ * these files.
+ */
+
+// TODO change this MAX_SIZE to something greater than 1GB (30)
+#define MAX_SIZE 28 // file sizes up to 2^MAX_SIZE bytes
 #define MAX_FILENAME_SIZE 64
-#define TRIALS 32
-#define INNER_TRIALS 8
+#define TRIALS 4
+#define INNER_TRIALS 4
+#define READ_STRIDE (1 << 12)   // read READ_STRIDE bytes at a time
 
 /**
  * Note:
@@ -64,8 +77,7 @@ double do_sequential_trial(int size) {
     // try to set the file in no buffering mode
     setvbuf(fp, 0, _IONBF, 0);
 
-    // read in blocks of 1 page at a time.
-    int read_size = 1 << 12;
+    int read_size = READ_STRIDE;
     int actual_read_size = num_bytes < read_size ? num_bytes : read_size;
 
 	char* data = malloc(actual_read_size * sizeof(char));
@@ -105,7 +117,7 @@ double do_random_trial(int size) {
     setvbuf(fp, 0, _IONBF, 0);
 
     // read in blocks of 1 page at a time.
-    int read_size = 1 << 12;
+    int read_size = READ_STRIDE;
     int actual_read_size = num_bytes < read_size ? num_bytes : read_size;
 
 	char* data = malloc(actual_read_size * sizeof(char));
@@ -139,8 +151,14 @@ void main(void) {
     // experience the file cache time, not the L1/memory cache time
     for (int j = 0; j < TRIALS; j++) {
         for (int i = 0; i < MAX_SIZE; i++) {
-            timings_seq[i][j] = do_sequential_trial(i);
-            timings_rand[i][j] = do_random_trial(i);
+            int flip = rand() % 2;
+            if (flip) {
+                timings_rand[i][j] = do_random_trial(i);
+                timings_seq[i][j] = do_sequential_trial(i);
+            } else {
+                timings_seq[i][j] = do_sequential_trial(i);
+                timings_rand[i][j] = do_random_trial(i);
+            }
         }
     }
 
