@@ -7,7 +7,7 @@
 
 #define SIZE 18  // file sizes of 2^SIZE bytes
 // Number of concurrent procs doing accesses to different files 
-#define NUM_PROCS 64    
+#define NUM_PROCS 32
 #define MAX_FILENAME_SIZE 64
 #define READ_SIZE (1 << 14) // have the contention processes read 4 blocks at a time
 
@@ -116,14 +116,15 @@ void main(int argc, char *argv[]) {
     int pids[NUM_PROCS];
 	double timings[NUM_PROCS][TRIALS];
 
-    for (int i = 0; i < NUM_PROCS; i++) {
+    for (int i = 0; i < NUM_PROCS; i *= 2) {
         print("Contending processes: %d\n", i);
+        for (int j = i ; j < i * 2; j++) {
+            int pid = do_contention(j);
+            pids[i] = pid;
+        }
         for (int j = 0; j < TRIALS; j++) { 
             timings[i][j] = do_trial();
         }
-        // spawn off yet another process
-        int pid = do_contention(i);
-        pids[i] = pid;
     }
 
     // stop all child processes from doing the reads
@@ -133,6 +134,9 @@ void main(int argc, char *argv[]) {
     double means[NUM_PROCS];
     double std_devs[NUM_PROCS];
     for (int i = 0; i < NUM_PROCS; i++) {
+        if (timings[i][0] == 0.0) {
+            continue;
+        }
         means[i] = calc_mean(timings[i]);
         std_devs[i] = calc_stddev(timings[i], means[i]);
         print("%d\t%f\t%f\n", i, means[i], std_devs[i]);
