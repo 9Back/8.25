@@ -75,7 +75,7 @@ int do_contention(int proc_num) {
     }
 }
 
-double do_trial() {
+double do_trial(void) {
     int rand_file = rand() % NUM_PROCS;
     char* filename = malloc(MAX_FILENAME_SIZE * sizeof(char));
     snprintf(filename, MAX_FILENAME_SIZE, "%d.contention.bin", rand_file);
@@ -97,7 +97,7 @@ double do_trial() {
     for (int i = 0; i < INNER_TRIALS; i++) {
         for (int j = 0; j < num_steps; j++) {
             cycles(&time_s);
-            fread(data, sizeof(char), actual_read_size, fp);
+            fread(data, sizeof(char), read_size, fp);
             cycles(&time_e);
             tot_cycles += time_e - time_s; 
         }
@@ -121,7 +121,7 @@ void main(int argc, char *argv[]) {
             timings[i][j] = do_trial();
         }
         // spawn off yet another process
-        int pid = do_contention();
+        int pid = do_contention(i);
         pids[i] = pid;
     }
 
