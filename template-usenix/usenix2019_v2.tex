@@ -468,7 +468,7 @@ https://pdfs.semanticscholar.org/dd0a/dcde7d074a414a9df76fb20d52a0d8aa8c71.pdf
 In the end, this prediction seemed to be a bit too conservative; the actual page fault service timing of the SSD was around 2.3 microseconds. Our results are summarised exactly in table 10. The SSD tested on is only a few months old, and it is possible that access speeds have gone up. It is also possible that we are missing some latency due to caching effects, though this is unlikely. 
 
 This methodology is quite rough, but it is the best which we were able to do given the constraints placed upon 
-us by Plan 9 in terms of forcing page faults.
+us by Plan 9 in terms of forcing page faults. We were able to get the 3 to 4 microseconds quoted in the paper by mapping in a file from disk (using the random device), but this methodology seemed to be dependent on the device itself and the mapping of the inodes on disk, and so we refrained from including these results in the paper.
 
 Dividing by a page size of 4096 bytes, we have roughly 2300 ns per 4096 bytes, or 0.578 ns per byte. This is much faster than accessing a single byte from main memory, since during a page fault we are able to stream in the data all at once, even though the time required to service the fault is high.
 
@@ -484,6 +484,81 @@ Dividing by a page size of 4096 bytes, we have roughly 2300 ns per 4096 bytes, o
 \end{tabular}
 \caption{Page Fault Servicing}
 \label{tab:pagefault}
+\end{figure}
+\subsection{Round Trip Time}
+Unfortunately, due to difficulties in aquiring two machines to run Plan 9, and networking Plan 9 through a VM, we were unable to perform a measurement of the remote round trip time for TCP.
+
+In order to measure loopback round trip time, we instantiated a tcp server and client, and then passed forward and back a 256 byte buffer 1000 times. 
+
+Ping on loopback had an average round trip time of 32 microseconds. The ping tests were repeated until the standard deviation was nearly zero. 
+
+On the loopback interface, network communications would ideally be buffered as IPC, making the overall cost minimal, and an access to an array at most the cost of a large write and large read from memory of 256 bytes; this should be rather fast, accounting for page faults, it may take a significant amount of time more than a network ping, we estimate around 10 times the amount, or 320,000 nanoseconds. On the remote interface, this may be even higher, as we would need to pass it through
+the network device. It is all dependent upon Plan 9, however.
+
+There is a lot of software coordination and lock attainment that needs to occur for network communication however, so this could increase the cost of network communication by another factor of ten, or 3,200,000 nanoseconds. This puts our prediction in the range of thousands of microseconds, for both loopback and remote.
+
+And wow, did we underestimate. The network on Plan 9 is around ten times slower than we thought, as can be seen in the RTT results table. This could be due to the TCP protocol itself, as well as the particular network interfaces, and it is a suprising result given that all of the communication should have been bufered over IPC; it doesn't seem like it was. 256 bytes / 44292.75 usec is nowhere near 1 Gb/s. The reasons that TCP does not match hardware are many, but many probably are how
+Our methodology for this experiment was fine, but could have been improved through the acquistion of a second Plan 9 machine.
+
+\begin{figure}
+	\centering
+    \begin{tabular}{l r r}
+      & Round Trip Time (usec) \\
+      Predicted Hardware & 320\\
+      Software Multiplier & 10 \\
+      Prediction & $3200$ \\
+                   & Average & Std Dev.\\
+      Actual Timing & 44292.755 & 4899.227 \\
+\end{tabular}
+\caption{Round Trip Time}
+\label{tab:roundtrip}
+\end{figure}
+\subsection{Peak Bandwidth}
+In order to measure peak bandwidth across the loopback, we instantated a TCP server and client and sent 256*(1 << 20) bytes over the wire, and measured how long it took. We then used this to measure the throughput in Mb/s over 1000 trials.
+
+Since this is a direct datastream over the loopback, which may go through the NIC or may be optimized through IPC, we estimate software to play less of a role in influencing the outcome of this test, and believe that it will be determined by the hardware: notably, it is likely that the hardware will dominate, and speeds will reach up to the promised 1 Gb/s of the device.
+
+We were suprised by the results: we found that our code was approaching speeds 70\% of what was expected. The missing speed is most likely due to costs in sending the data over TCP and latency introduced by the operating system and hardware, both of which will be difficult to improve without reworking the network stack. Which is definitely going to happen, as Plan 9 is a popular distributed OS. The values are reported in the figure on peak bandwidth.
+
+The methodology for this experiment was reasonable, as it was the measurement was a straight-forward TCP stream.
+
+\begin{figure}
+	\centering
+    \begin{tabular}{l r r}
+      & Peak Bandwidth \\
+      Predicted Hardware & 1 Gb/s\\
+      Software Multiplier & 1 \\
+      Prediction & $1Gb/s$ \\
+                   & Average & Std Dev.\\
+      Actual Timing & 758.71 Mb/s & 13.219 Mb/s \\
+\end{tabular}
+\caption{Peak Bandwidth}
+\label{tab:peakbandwidth}
+\end{figure}
+
+\subsection{Connection Overhead}
+
+In order to measure the cost of connection setup and teardown, we established a TCP connection over the loopback to a listening TCP server and measured the time which it took to establish 1000 times. 
+
+Establishing a TCP connection is a matter of performing a three-way handshake plus some application logic to ensure the connection environment is properly initialized, thus, our estimate was that it would be equivalent to three pings, or 32 times 3 microseconds, roughly 100 usec. It was estimated that software should only cost around two times this. Our final estimate was around 200 usec.
+
+We were suprised to see that the setup time was approximately 2.5 times this amount, and the tear down time was only a fraction of it. Setup took nearly 600 microseconds, perhaps because of the operating system overhead involved in networking, and had a broad standard deviation, while teardown was quick, and often reliably short.
+
+In all, our methodology for this section seemed reasonably bulletproof, though we would have liked to try this test between networked plan 9 machines.
+
+\begin{figure}
+	\centering
+    \begin{tabular}{l r r}
+      & Peak Bandwidth \\
+      Predicted Hardware & 96\\
+      Software Multiplier & 2 \\
+      Prediction & $200 usec$ \\
+                   & Average & Std Dev.\\
+        Actual Timing (Setup) & 568.06 usec & 92.119 usec \\
+        Actual Timing (Teardown) & 5.928 usec  & 0.1793 usec \\
+\end{tabular}
+\caption{Peak Bandwidth}
+\label{tab:peakbandwidth}
 \end{figure}
 
 \subsection{Discussion}
