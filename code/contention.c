@@ -116,7 +116,7 @@ void main(int argc, char *argv[]) {
     int pids[NUM_PROCS];
 	double timings[NUM_PROCS][TRIALS];
 
-    for (int i = 0; i < NUM_PROCS; i *= 2) {
+    for (int i = 1; PROCS; i *= 2) {
         print("Contending processes: %d\n", i);
         for (int j = i ; j < i * 2; j++) {
             int pid = do_contention(j);

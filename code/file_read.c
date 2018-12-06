@@ -19,7 +19,7 @@
 #define MAX_FILENAME_SIZE 64
 #define TRIALS 4
 #define INNER_TRIALS 4
-#define READ_STRIDE (1 << 12)   // read READ_STRIDE bytes at a time
+#define READ_STRIDE (1 << 14)   // read READ_STRIDE bytes at a time
 
 /**
  * Note:
@@ -160,6 +160,7 @@ void main(void) {
                 timings_rand[i][j] = do_random_trial(i);
             }
         }
+        print("trial: %d/%d\n", j, TRIALS);
     }
 
     print("file size (bytes)\tmean (cycles)\tstddev (cycles)\n");
