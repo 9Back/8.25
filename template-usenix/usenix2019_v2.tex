@@ -514,8 +514,15 @@ at about 7GB/s.
 	\label{fig:filecache}
 \end{figure}
 
-% looks like we weren't able to read a large enough file to determine where the
-% file cache is?
+From the graph we can see that the file bandwidth decreased dramatically from
+reading 1KB large files to reading 32KB large files. This seems to be the effect
+of moving through larger CPU caches. From 32KB to 8MB we see that the read
+bandwidth remains relatively constant. We guess that the file buffer cache is
+8MB large because the bandwidth (0.6GB/s) suggests that we are within the
+ballpark for reading from memory, alhtough this bandwidth is far lower than
+what we predicted it to be. Perhaps we did not saturate the bus as we were
+reading only 16KB at a time.
+
 \subsection{File Read Time}
 To measure the file read time, we vary the file size we are reading over from
 1B to 4MB. We then read from these files 16KB at a time, compensating in the
@@ -560,6 +567,28 @@ over the 9p protocol and test the remote read speed simply by measuring the
 time to read a remote file into main memory. Again we averaged only over two
 trials, since we found that we were already averaging the read speed over many
 bytes (a 5MB file) anyways.
+
+We imagine that the main bottleneck of this remote read is the inefficiencies
+of the 9p protocol, as streaming runes over IP is not as fast as sending packets
+over TCP. We think that the hardware should not account for a great decrease
+in bandwidth: the network card has a bandwidth of 1Gb/s, and our memory bus
+is measured at 8GB/s. Our internet connection on the university network is
+on average 16MB/s. We think the software multiplier decreases
+the bandwidth by 1000x.
+
+\begin{figure}
+	\centering
+    \begin{tabular}{lr}
+      & Bandwidth\\
+Hardware Guess  & 16MB/s\\
+Software Multiplier & 0.0001\\
+Prediction & 10KB/s\\
+Average  & 77KB/s\\
+Std Dev. & 15KB/s
+\end{tabular}
+\caption{Remote File Read}
+\label{tab:generaloverheads}
+\end{figure}
 
 \subsection{Contention}
 To measure the effect of contending processes performing reads on different
