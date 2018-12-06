@@ -84,6 +84,19 @@ void main(int argc, char *argv[])
     print("mean throughput in mb/s: %f\n", mean_1);
     print("std_dev throughput in mb/s: %f\n", std_dev_1);
 
+    double last_min;
+    for(int i=0;i<TRIALS;i++)
+    {
+            if(measurments[i] < last_min)
+            {
+                    last_min = measurments[i];
+            }
+    }
+
+    last_min = last_min/2.5;
+    last_min = 1000000000*(256/((double) last_min));
+    print("max throughput in mb/s: %f\n", last_min);
+
     free(buf);
     exits(nil);
 }
