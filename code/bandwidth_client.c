@@ -1,7 +1,7 @@
 #include <u.h>
 #include <libc.h>
 
-#define TRIALS 1000
+#define TRIALS 100
 
 double calc_mean(double * trials)
 {
@@ -41,21 +41,15 @@ void main(int argc, char *argv[])
     uvlong time_end=0;
     double time_diff = 0.0;
 
-    char buf[256];
+    //256 megabyte
+    char * buf = malloc((1 << 8));
 
-    for(int i=0;i<256;i++)
-    {
-        buf[i] = 'a';
-    }
-
-    int n;
     int fd;
 
-    //loopback RTT
     for(int i=0;i<TRIALS;i++)
     {
         //establish connection
-        fd = dial("tcp!10.0.2.15!7",0,0,0);
+        fd = dial("tcp!10.0.2.15!9876",0,0,0);
 
         if(fd == -1)
         {
@@ -64,8 +58,7 @@ void main(int argc, char *argv[])
         }
 
         cycles(&time_begin);
-        write(fd,buf,sizeof(buf));
-        n = read(fd,buf,sizeof(buf));
+        write(fd,buf,(1 << 8));
         cycles(&time_end);
 
         measurments[i] = time_end - time_begin;
@@ -78,9 +71,20 @@ void main(int argc, char *argv[])
     }
 
     double mean = calc_mean(measurments);
-    print("RTT time (mean) on loopback (nsec): %f\n", mean / 2.5);
+    print("256 megabyte time (mean) on loopback (nsec): %f\n", mean / 2.5);
     double std_dev = calc_stddev(measurments,mean);
-    print("RTT time (std_dev) on loopback (nsec): %f\n", std_dev / 2.5);
+    print("1256 megabyte time (std_dev) on loopback (nsec): %f\n", std_dev / 2.5);
 
+    //time in nsec
+    mean = mean /2.5;
+    std_dev = std_dev/2.5;
+
+    double mean_1 = 1000000000*(256/((double) mean));
+    double std_dev_1 = 1000000000*(256/((double) std_dev));
+
+    print("mean throughput in mb/s: %f\n", mean_1);
+    print("std_dev throughput in mb/s: %f\n", std_dev_1);
+
+    free(buf);
     exits(nil);
 }
