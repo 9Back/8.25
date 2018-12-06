@@ -109,6 +109,7 @@ double do_trial(void) {
 
 double do_trial_single_file(void) {
     char *filename = "/n/pkg/386/openssh-2012.03.15.tbz";
+    vlong size = 5262444.0;
 	char* data = malloc(READ_STRIDE * sizeof(char));
 
     int fd = open(filename, OREAD);
@@ -116,16 +117,16 @@ double do_trial_single_file(void) {
 	uvlong time_s = 0;
 	uvlong time_e = 0;
 
-    int read_times = cur_dir.length / READ_STRIDE;
-    if (cur_dir.length % READ_STRIDE > 0) {
+    int read_times = size / READ_STRIDE;
+    if (size % READ_STRIDE > 0) {
         // take into account filesizes not perfectly fitting
         read_times += 1;
     }
     double tot_cycles = 0.0;
     for (int i = 0; i < read_times; i++) {
-        if (i == read_times - 1 && cur_dir.length % READ_STRIDE > 0) {
+        if (i == read_times - 1 && size % READ_STRIDE > 0) {
             cycles(&time_s);
-            read(fd, data, cur_dir.length % READ_STRIDE); 
+            read(fd, data, size % READ_STRIDE); 
             cycles(&time_e);
         } else {
             cycles(&time_s);
@@ -138,7 +139,7 @@ double do_trial_single_file(void) {
     close(fd);
     free(data);
 
-    return tot_cycles / 5262444.0;
+    return tot_cycles / (double)size;
 }
 
 void main(void) {
