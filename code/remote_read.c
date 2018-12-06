@@ -134,6 +134,7 @@ double do_trial_single_file(void) {
             cycles(&time_e);
         }
         tot_cycles += time_e - time_s; 
+        print("%d/%d, tot_cycles: %f\n", i, read_times, tot_cycles);
     }
 
     close(fd);
@@ -155,7 +156,7 @@ void main(void) {
     double mean = calc_mean(timings);
     double std_dev = calc_stddev(timings, mean);
 
-    print("%d\t%f\t%f\n", 0, mean, std_dev);
+    print("%f\t%f\n", mean, std_dev);
 	exits(nil);
 }
 
