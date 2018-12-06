@@ -225,15 +225,15 @@ Hardware Guess       & 15 nsec & \\
 Software Multiplier Guess       & 1-2 &  \\
 Prediction       & 17 nsec &  \\
     Num Args & Average (nsec)   & Std Dev. (nsec)  \\
-0& 14.487840& 8.702724
-1& 14.892560& 8.991838
-2& 15.215200& 9.187626
-3& 14.844640& 8.996905
-4& 14.883760& 8.986072
-5& 15.223920& 9.204537
-6& 14.851200& 8.963965
-7& 15.226480& 9.198042
-8& 15.264640& 9.227006
+0 & 14.487840& 8.702724 \\
+1 & 14.892560& 8.991838 \\
+2 & 15.215200& 9.187626 \\
+3 & 14.844640& 8.996905 \\
+4 & 14.883760& 8.986072 \\
+5 & 15.223920& 9.204537 \\
+6 & 14.851200& 8.963965 \\
+7 & 15.226480& 9.198042 \\
+8 & 15.264640& 9.227006
 \end{tabular}
 \caption{Procedure Call Overheads}
 \label{tab:proccalloverheads}
@@ -642,6 +642,11 @@ time to read a remote file into main memory. Again we averaged only over two
 trials, since we found that we were already averaging the read speed over many
 bytes (a 5MB file) anyways.
 
+We predicted to see a fair amount of network latency while doing the measurement,
+and this is exactly what we saw. Even though remote files were "mounted", they 
+still needed to be requested over 9p, which is an inefficient protocol, and 
+not as optimized as newer implementations of TCP. 
+
 \subsection{Contention}
 To measure the effect of contending processes performing reads on different
 files in the filesystem, our benchmark spawns up to 32 processes in powers of
@@ -649,6 +654,11 @@ two, and at each level of number of processes conntending for reads, we read
 from random 1MB long files (of which there are 32 to choose from) in 4K sized 
 chunks. We then measure the bandwidth experienced by a constant process as more
 processes are forked in the background.
+
+As more processes attempt to read files on the file system, we expect the bandwidth
+achieved by each process to decrease somewhat exponentially with the number of readers. After 
+we performed the experiment, this is approximately what we saw; as the number of processes 
+increases, the log of the bandwidth in bytes/s decreases linearly.
 
 \begin{figure}
 	\centering
@@ -660,6 +670,26 @@ processes are forked in the background.
 
 Citations for various ideas on hardware timings are spread throughout the paper as footnotes 
 ease of reference. 
+
+\begin{tabular*}{\textwidth}{c @{\extracolsep{\fill}} ccccc}
+    Operation & Base Hardware Performance & Estimated Software Overhead & Predicted Time & Measured Time \\
+    Measurment Overhead (Reading) & 1ns & 2-10ns & 2-10ns & 11ns \\
+    Measurment Overhead (Loop) & 5ns & 2ns & 10ns & 17.2ns \\
+    Procedure Call & 15 ns & 1-2x & 17ns & aprx. 15ns \\
+    Syscall & 100ns & 10x & 1000ns & aprx. 861ns \\
+    Fork (Light) & 30us & 1x & 30us & aprx. 27us \\
+    Fork (Heavy) & 30us & 1x & 30us & aprx. 28us \\
+    Context Switch & 1600ns & 10x & 16us & aprx. 13us \\
+    L1 Latency & 1600ns & 10x & 16us & aprx. 13us \\
+    L2 Latency & 1600ns & 10x & 16us & aprx. 13us \\
+    Memory & 1600ns & 10x & 16us & aprx. 13us \\
+    Memory Bandwidth & 1600ns & 10x & 16us & aprx. 13us \\
+    Page Fault Servicing & 1600ns & 10x & 16us & aprx. 13us \\
+    RTT & 1600ns & 10x & 16us & aprx. 13us \\
+    Peak Bandwidth & 1600ns & 10x & 16us & aprx. 13us \\
+    Setup TCP & 1600ns & 10x & 16us & aprx. 13us \\
+    Teardown TCP & 1600ns & 10x & 16us & aprx. 13us \\
+\end{tabular*}
 
 
 
