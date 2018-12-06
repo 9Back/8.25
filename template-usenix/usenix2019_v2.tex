@@ -486,6 +486,68 @@ Dividing by a page size of 4096 bytes, we have roughly 2300 ns per 4096 bytes, o
 \label{tab:pagefault}
 \end{figure}
 
+\subsection{Size of File Cache}
+In this section we report our estimation for the size of file cache. In order to
+measure the file cache we find the time taken to perform reads over a calculated
+number of bytes. Our benchmark always reads 16KiB (4 page) blocks at a time. For
+file sizes below 16KiB, we simply read the file again and again until we reach
+enough bytes to make a comparison. In effect we find the amount of time to read
+a 4 page block of data for increasing file sizes. All this is done within one
+trial, and we average over 32 trials done for each file size, which ranged
+from 1B to 128MB, in increments of powers of two.
+
+We imagine the in-memory file cache to be generously large (>64MB). We estimate
+that reads from the file cache should be within a magnitude of our RAM bandwidth
+as measured in the previous section. The software overhead of a file cache should
+not be too large - we must perform some checks in order to see whether a file
+has been mapped to the cache, and we may feel some effects of initially mapping
+a file into cache. This overhead should be small, i.e. decrease the bandwidth
+by no more than 10\%.
+
+When reading from the file cache, we would then expect our read bandwidth to be
+at about 7GB/s.
+
+% looks like we weren't able to read a large enough file to determine where the
+% file cache is?
+\subsection{File Read Time}
+To measure the file read time, we vary the file size we are reading over from
+1B to 4MB. We then read from these files 16KB at a time, compensating in the
+files smaller than 16KB by reading more times. This comprised one trial, and we
+averaged over 4 trials for each given file size. We found this small amount of
+trials to be sufficient because of the large file sizes we operated over.
+
+We tried to do measure sequential reads by reading sequentially through files
+we created earlier, but how sequential this is depends on the physical
+placement of data blocks by the file system, and how many levels of indirection
+a block can support. This also may not matter altogether because of the lack of
+a long and variable seek time in our SSD, which has no mechanically moving
+parts.
+
+Random reads were done by seeking to random offsets within the file after every
+read. 
+
+We could not find an raw interface to access the disk itself in order to skip
+the effects of the file buffer cache. Instead we specified a hint to the file
+interface to disable the use of buffering reads and writes using
+\texttt{setvbuf}.
+% TODO approximations
+
+\subsection{Remote File Read Time}
+Finally, we are able to take advantage of one of Plan 9's most unique features:
+remote filesystem mounting. We were able to mount a public Plan 9 file server
+over the 9p protocol and test the remote read speed simply by measuring the
+time to read a remote file into main memory. Again we averaged only over two
+trials, since we found that we were already averaging the read speed over many
+bytes (a 5MB file) anyways.
+
+\subsection{Contention}
+To measure the effect of contending processes performing reads on different
+files in the filesystem, our benchmark spawns up to 32 processes in powers of
+two, and at each level of number of processes conntending for reads, we read
+from random 1MB long files (of which there are 32 to choose from) in 4K sized 
+chunks. We then measure the bandwidth experienced by a constant process as more
+processes are forked in the background.
+
 \subsection{Discussion}
 \textit{Compare the measured performance with the predicted performance. If they are wildly different, speculate on reasons why. What may be contributing to the overhead?}
 
