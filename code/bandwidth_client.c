@@ -72,7 +72,7 @@ void main(int argc, char *argv[])
     double mean = calc_mean(measurments);
     print("256 mb time (mean) on loopback (nsec): %f\n", mean / 2.5);
     double std_dev = calc_stddev(measurments,mean);
-    print("1024 mb time (std_dev) on loopback (nsec): %f\n", std_dev / 2.5);
+    print("256 mb time (std_dev) on loopback (nsec): %f\n", std_dev / 2.5);
 
     //time in nsec
     mean = mean /2.5;

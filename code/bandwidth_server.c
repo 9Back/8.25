@@ -6,7 +6,7 @@ int net_test(void)
     int dfd, acfd, lcfd;
     char adir[40], ldir[40];
     int n;
-    char buf[256];
+    char * buf = malloc(256*(1 << 20));
     int tmp;
 
     acfd = announce("tcp!*!9876", adir);
@@ -39,7 +39,7 @@ int net_test(void)
             }
 
             /* echo until EOF */
-            while((n = read(dfd, buf, sizeof(buf))) > 0)
+            while((n = read(dfd, buf, 256*(1 << 20))) > 0)
             {
             }
 
