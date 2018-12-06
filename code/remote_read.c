@@ -11,8 +11,7 @@
  * from /n/pkg/386, because they seem like nice files to read.
  */
 
-#define TRIALS 4
-#define INNER_TRIALS 4
+#define TRIALS 2
 #define READ_STRIDE (1 << 12)   // read READ_STRIDE bytes at a time
 #define MAX_FILENAME_SIZE 256
 
@@ -72,40 +71,41 @@ double do_trial(void) {
     char* filename = malloc(MAX_FILENAME_SIZE * sizeof(char));
 	char* data = malloc(READ_STRIDE * sizeof(char));
 
-    double tot_cycles = 0.0;
-    for (int i = 0; i < INNER_TRIALS; i++) {
-        for (long i = 0; i < dir_size; i++) {
-            Dir cur_dir = buf_dir[i];
-            snprintf(filename, MAX_FILENAME_SIZE, "/n/pkg/386/%s", cur_dir.name);
-            int fd = open(filename, OREAD);
+    double tot_cycles_byte = 0.0;
+    for (long i = 0; i < dir_size; i++) {
+        Dir cur_dir = buf_dir[i];
+        snprintf(filename, MAX_FILENAME_SIZE, "/n/pkg/386/%s", cur_dir.name);
+        int fd = open(filename, OREAD);
 
-            int read_times = cur_dir.length / READ_STRIDE;
-            if (cur_dir.length % READ_STRIDE > 0) {
-                // take into account filesizes not perfectly fitting
-                read_times += 1;
-            }
-            for (int i = 0; i < read_times; i++) {
-                if (i == read_times - 1 && cur_dir.length % READ_STRIDE > 0) {
-                    cycles(&time_s);
-                    read(fd, data, cur_dir.length % READ_STRIDE); 
-                    cycles(&time_e);
-                } else {
-                    cycles(&time_s);
-                    read(fd, data, READ_STRIDE);
-                    cycles(&time_e);
-                }
-                tot_cycles += time_e - time_s; 
-            }
-            close(fd);
+        int read_times = cur_dir.length / READ_STRIDE;
+        if (cur_dir.length % READ_STRIDE > 0) {
+            // take into account filesizes not perfectly fitting
+            read_times += 1;
         }
+        double tot_cycles = 0.0;
+        for (int i = 0; i < read_times; i++) {
+            if (i == read_times - 1 && cur_dir.length % READ_STRIDE > 0) {
+                cycles(&time_s);
+                read(fd, data, cur_dir.length % READ_STRIDE); 
+                cycles(&time_e);
+            } else {
+                cycles(&time_s);
+                read(fd, data, READ_STRIDE);
+                cycles(&time_e);
+            }
+            tot_cycles += time_e - time_s; 
+        }
+        tot_cycles_byte += tot_cycles / cur_dir.length;
+        print("Finished reading: %s, bytes: %d, tot_cycles: %f\n",
+                cur_dir.name, cur_dir.length, tot_cycles);
+        close(fd);
     }
 
     free(data);
 
-    // cycles per byte
-    return ((double)(tot_cycles) / total_length) / INNER_TRIALS;
+    // cycles per byte average
+    return ((double)(tot_cycles_byte) / dir_size);
 }
-
 
 void main(void) {
 	double timings[TRIALS];
