@@ -62,7 +62,7 @@ double do_trial(void) {
         Dir cur_dir = buf_dir[i];
         print("Will read: %s\t%lld\n", cur_dir.name, cur_dir.length);
 
-        total_length += cur_dir->length;
+        total_length += cur_dir.length;
     }
     free(buf_dir);
 
@@ -113,7 +113,7 @@ void main(void) {
     // intentionally read a different file size, to make sure all trials
     // experience the file cache time, not the L1/memory cache time
     for (int j = 0; j < TRIALS; j++) {
-        timings[j] = do_trial(j);
+        timings[j] = do_trial();
     }
 
     print("mean (cycles/byte)\tstddev (cycles/byte)\n");
