@@ -38,7 +38,7 @@ void main(int argc, char *argv[])
 {
     double measurments[TRIALS];
     uvlong time_begin=0;
-    uvling time_end=0;
+    uvlong time_end=0;
     double time_diff = 0.0;
 
     //256 megabyte

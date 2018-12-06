@@ -45,7 +45,7 @@ void main(int argc, char *argv[])
 
     for(int i=0;i<256;i++)
     {
-        buf[i] = "a";
+        buf[i] = 'a';
     }
 
     int n;
