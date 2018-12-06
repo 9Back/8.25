@@ -1,6 +1,8 @@
 #include <u.h>
 #include <libc.h>
+#include <stdio.h>
 
+#define INNER_TRIALS 4
 #define TRIALS 128
 
 #define SIZE 20  // file sizes of 2^SIZE bytes
@@ -126,10 +128,14 @@ void main(int argc, char *argv[]) {
     // stop all child processes from doing the reads
     postnote(PNGROUP, getpid(), "interrupt");
 
-	mean = calc_mean(measurements);
-	stddev = calc_stddev(measurements, mean);
-	print("standard fork mu (cycles): %f\n", mean);
-	print("standard fork sigma (cycles): %f\n", stddev);
+    print("num procs\tmean (cycles)\tstddev (cycles)\n");
+    double means[NUM_PROCS];
+    double std_devs[NUM_PROCS];
+    for (int i = 0; i < NUM_PROCS; i++) {
+        means[i] = calc_mean(timings[i]);
+        std_devs[i] = calc_stddev(timings[i], means[i]);
+        print("%d\t%f\t%f\n", i, means[i], std_devs[i]);
+    }
 
 	exits(nil);
 

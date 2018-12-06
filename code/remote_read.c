@@ -12,7 +12,7 @@
  */
 
 #define TRIALS 2
-#define READ_STRIDE (1 << 12)   // read READ_STRIDE bytes at a time
+#define READ_STRIDE (1 << 14)   // read READ_STRIDE bytes at a time
 #define MAX_FILENAME_SIZE 256
 
 double calc_mean(double * trials) 
@@ -95,7 +95,7 @@ double do_trial(void) {
             }
             tot_cycles += time_e - time_s; 
         }
-        tot_cycles_byte += tot_cycles / cur_dir.length;
+        tot_cycles_byte += tot_cycles / (double)(cur_dir.length);
         print("Finished reading: %s, bytes: %d, tot_cycles/byte: %f\n",
                 cur_dir.name, cur_dir.length, tot_cycles_byte);
         close(fd);
