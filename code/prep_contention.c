@@ -4,7 +4,7 @@
 
 #define SIZE 18 // file sizes of 2^SIZE bytes
 // Number of concurrent procs doing accesses to different files 
-#define NUM_PROCS 64    
+#define NUM_PROCS 632
 #define MAX_FILENAME_SIZE 64
 
 void main(void) {
