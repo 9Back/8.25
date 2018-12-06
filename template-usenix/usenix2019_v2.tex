@@ -68,7 +68,14 @@ The following paper describes a set of benchmarks run on the Plan 9 operating sy
 
 Plan 9 from Bell labs is a distributed operating system which emerged around the 1980's. It built upon the ideas of UNIX, but adopted an ideology that ``everything is a file''. Although the system was marketed in the 90's, it did not catch on, as prior operating systems had already gained enough of a foothold. Eventually, during the 2000's, Bell Labs ceased development on Plan 9, meaning official development halted. Unofficial\footnote{This is debatable. If you adopt an orphan, are they not your official child?} development continues on the 9front fork of the codebase, with new support for Wi-Fi, Audio, and everything anyone could ever want or need. 
 
-The experiments were performed as a group using a shared codebase and a single machine described in the following section. The measurements were performed via programs written in Plan 9's \textit{special} version of C 99 and Alef, both described in the original Plan 9 paper todo{cite}. The compilers used were the x86 versions of Plan 9's C compiler and Alef compiler, 8c and 8al respectively. The compilers were run with no special optimization settings. Version numbers are not available. Measurements were performed on a single machine running Plan 9 directly from hardware; given the nature of the Plan 9 system, additional metrics could be established for networked file systems and CPU servers; these measurements were not done for sake of simplicity, and because results under these conditions should be inferrable from the results cataloged within this paper.
+The experiments were performed as a group using a shared codebase and a single machine described in the following section. The measurements were performed via programs written in Plan 9's \textit{special} version of C 99. The compiler used were the x86 versions of Plan 9's C compiler, 8c. The compiler was run with optimizations disabled. Version numbers are not available. Measurements were performed on a single machine running Plan 9 directly from hardware; given the nature of the Plan 9 system,
+additional metrics could be established for networked file systems and CPU servers; these measurements were not done for sake of simplicity, and because results under these conditions should be inferrable from the results cataloged within this paper plus network overheads. 
+
+The use of actual hardware for this task should have less variance compared to measurements performed within a VM, although there were several points in time where it became clear that Plan 9 was not neccessarily able to handle the hardware interface as expected, such as during the high contention disk access task, which caused I/O errors to shoot off from the SSD.
+
+The project was accomplished over the course of ten weeks in short five to twenty hour bursts, wherein team members took turns on implementation tasks according to their respective amounts of free time. In total, due to difficulties inherent with the particular operating system chosen for benchmarking, each team member spent around 30 to 40 hours on this project. 
+
+Benchmarking a forty year old bunny-focused OS maintained by less than 10 strangers including us and making it jump through rings of fire was admittedly a weird flex but okay. 
 
 \section{Machine Description}
 
@@ -136,16 +143,23 @@ The following section reports overheads of reading time. One trial involves loop
 
 Since we imagine getting the current cycles clock is a fast operation, so we
 estimate the hardware performance to be on the scale of nanoseconds, since one
-clock cycle takes approximately 1 nanoseconds. We think that the
+clock cycle takes approximately 0.5 nanoseconds. We think that the
 \texttt{cycles} call should do something similar to reading from the cycle
-counter, so it may be a bit slower, perhaps on the order of 10ns.
-[https://www.7-cpu.com/cpu/SandyBridge.html]
+counter, so it should be almost instantaneos, perhaps on the order of 2ns.
+[Page 547 of https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-2b-manual.pdf]
 
-The software cost of this, however, will be tremendous, since that value must
-be moved out from a register and potentially to a variable, and a syscall must
-be made, the result might be aroudn 10 to 30 times the hardware cost.
+The software cost of this should be low to non-existent, since that value is 
+directly loaded into two registers, which might be directly examined under normal 
+circumstances. It is the case that Plan 9's C compiler does not accept assembly directives, 
+and thus we were forced to use the \texttt{cycles} call, which may be doing extra work.
 
-This would put our predicted cost at around 100 to 300 nanoseconds.
+This would put our predicted cost at around 2 to 10 nanoseconds, accounting for potential
+variations due to operating system tasks such as context switching, interrupts, and 
+other architectural lags.
+
+Our results are shown in table 1; it seems we may have underestimateed the cost of hardware 
+and software in measurement of time. We feel that our methodology, however, is sound, given the
+incredibly low degree of variability in our results. Units are reported in nanoseconds.
 
 \subsection{Measurement Overhead (Loop Overhead)}
 
@@ -155,26 +169,29 @@ those to measure the loop overhead time. We repreat this 16384 times within
 each trial, and perform 64 trials. We average over all of these trials.
 
 The cost of doing a single for loop based branch in hardware is also very low.
-Assuming a compare, jump, and register increment takes 3 cycles, and adding
-2 cycles for rare branch mispredictions, the loop overhead should be around
-5 cycles. Adding software uncertainties, the loop overhead could be about
-50 nanoseconds.
-[https://www.7-cpu.com/cpu/SandyBridge.html]
+Assuming a compare, jump, and register increment take 3 to 5 cycles, and adding
+additional overheads for branch misprediction, the loop overhead should be around
+10 cycles. 
+[Patterson, David A.; Hennessy, John L. Computer Organization and Design: The Hardware/Software Interface.]
 
-Software, again, will slow this down, as well as the rest of the operating
-system. Other system processes may need the processor, data may not be in the
-carch, and thus the latency might be 20 times this, the same as a reference to
-the L2 cache, roughly.
+Software, will slow this down due to random interruptions while executing, as mentioned before.
+Other system processes may need the processor, and thus the latency might be roughly twice 
+this.
 
-Thus, our predicted cost is around 2 microseconds.
+As a prediction, the cost of a loop will be on the order of 20 nanoseconds, maybe less, since
+our hardware estimate may be a bit too lenient.
+
+The results for this experiment are also in table 1; we did underestimate the cost of a loop by a bit;
+we feel this is most likely due to higher hardware costs than expected, perhaps due to the ineffiencies
+of the processor's branch predictor or just high cycle count instructions. We have every reason to believe our methodology was sound.
 
 \begin{figure}
 	\centering
     \begin{tabular}{lll}
       & Reading (ns) & Loop (ns) \\
-Hardware Guess  & 100 & 2\\
-Software Multiplier & 10-30 & 10 \\
-Prediction & 1-3 usec & 20\\
+Hardware Guess  & 1 & 5\\
+Software Multiplier & 2-10 & 2 \\
+Prediction & 2-10 & 10\\
 Average  & 11 & 17.2 \\
 Std Dev. & 0 & 0
 \end{tabular}
@@ -186,31 +203,36 @@ Std Dev. & 0 & 0
 \subsection{Procedure Call Overhead}
 
 In measuring the function overhead, we created functions of zero to seven integer arguments,
-we then proceeded to call eacah of these functions 20000
-times, and found the average time taken over these 20000 calls. Overall, increment overhead was almost non-existent.
+we then proceeded to call eacah of these functions 20000 times, and found the average time taken over these 20000 calls. Overall, increment overhead was almost non-existent.
 
-The hardware cost of a procedure call using the standard c calling convention should not be that high, as it is almost all done in registers. The caller pushes the arguments to the stack (very little cost), saves the return address, the frame pointer, and calls the function. The hardware cost of this should be more than a for loop, but still reasonable, maybe roughly equitable since there are no comparisons or complex operations. Thus, somewhere on the range of 150ns to 200ns would seem reasonable, maybe even 100ns.
-[https://www.7-cpu.com/cpu/SandyBridge.html]
+The hardware cost of a procedure call using the standard c calling convention should not be that high, as it is almost all done in registers. The caller pushes the arguments to the stack (very little cost), saves the return address, the frame pointer, and calls the function. There is also all the take-down cost for the function call, and the jumping of the instruction pointer, which will clear the incoming buffer of instructions. The hardware cost of this should be significant but not insane; we
+are thinking on the order of 30 cycles, so around 15 or less nsec.
+[https://9p.io/sys/doc/compiler.html]
 
-The software cost of this is is probably about the same as the measurement overhead and for loop overhead, since we still may need to context switch to another process, as well as handle interrupts, etc. So I would reason that it would be around 20x the hardware cost.
+The software cost of a function call in plan 9 is remarkably small, as the compiler stores all argument positions relative to a stack pointer, and thus needs to consider only one piece of metadata while making a call. There is still the threat of context switches, so the software cost may be a multiplier between 1 and 2.
 
-This puts our prediction for the cost to be somewhere between 2000 nsec and 4000 nsec. Arguments shouldn't really effect the speed of a function call under our system.
+This puts our prediction for the cost to be somewhere around 15 to 20 nanoseconds for a function call, independent of the number of parameters passed.
+
+Our results are recorded in table 2; we were roughly in line with our estimates, though there is a significant degree of variance in the results, most likely due to needing to make a reference back into DRAM or context switches. This was a straightforward quantity to measure and most likely our results are accurate. 
+
+As a final note, there is little overhead for adding arguments to a function call in plan nine, most likely due to the stack pointer relative addressing and our lack of tests for access times to the arguments vs other operating systems.
 
 \begin{figure}
 	\centering
 \begin{tabular}{lll}
-Hardware Guess       & 150 nsec & \\
-Software Multiplier Guess       & 20x &  \\
-Prediction       & 3000 usec &  \\
-Num Args & Average    & Std Dev.   \\
-0        & 2.110 usec & 0.191 usec \\
-1        & 2.104 usec & 1.248 usec \\
-2        & 2.118 usec & 0.346 usec \\
-3        & 2.113 usec & 0.571 usec \\
-4        & 2.108 usec & 0.213 usec \\
-5        & 2.120 usec & 0.915 usec \\
-6        & 2.111 usec & 2.165 usec \\
-7        & 2.108 usec & 0.321 usec
+Hardware Guess       & 15 nsec & \\
+Software Multiplier Guess       & 1-2 &  \\
+Prediction       & 17 nsec &  \\
+    Num Args & Average (nsec)   & Std Dev. (nsec)  \\
+0& 14.487840& 8.702724
+1& 14.892560& 8.991838
+2& 15.215200& 9.187626
+3& 14.844640& 8.996905
+4& 14.883760& 8.986072
+5& 15.223920& 9.204537
+6& 14.851200& 8.963965
+7& 15.226480& 9.198042
+8& 15.264640& 9.227006
 \end{tabular}
 \caption{Procedure Call Overheads}
 \label{tab:proccalloverheads}
@@ -231,9 +253,16 @@ putting the timing at around 100 nsec.
 
 It is likely that the overhead of a syscall beyond this is pretty high due to
 the actual operations and implementation of the syscall operation. Thus, the
-cost could be 30 to 40x the hardware cost.
+cost could be 10x the hardware cost.
 
-That puts our estimate at around 3 to 4 usec.
+That puts our estimate at around 1000 nsec or 1usec, which still seems reasonable for a system call.
+
+Results are shown in table three and reveal a slight overestimate on our part, though perhaps not an 
+unreasonable one. Notably, this cost is much, much higher than a empty-body procedure call. We do not
+have any reason to believe that Plan 9 would be caching the results of this system call so that subsequent
+calls do not need to trap to the OS. This may be a potential source of optimizations.
+
+Our methodology for evaluating this experiment was straight forward enough and is likely correct.
 
 \begin{figure}
 	\centering
@@ -241,9 +270,9 @@ That puts our estimate at around 3 to 4 usec.
             & System Call Overhead \\
     Hardware Guess  & 100 nsec  \\
     Software Multiplier  & 10x \\  
-    Prediction  & 1 usec \\
-    Average  & 0.866 usec\\
-    Std Dev. & 0.0144 usec          
+    Prediction  & 1000 nsec \\
+    Average  & 861 nsec\\
+    Std Dev. & 70.8 nsec          
     \end{tabular}
 \caption{Syscall Overhead}
 \label{tab:syscalloverheads}
@@ -260,24 +289,33 @@ results from the fact that Plan 9 does not have kernel threads.
 
 The hardware costs of a light fork should be much less than a heavy fork, since
 resources do not need to be shared, but because our processes are minimal, it
-is likely this difference is negligible. Still, this whole process will take
-tens of thousands to millions of cycles, meaning thousands of microseconds,
-maybe 500 usec with a 1,000,000 cycles.
-[http://ithare.com/infographics-operation-costs-in-cpu-clock-cycles/]
+is likely this difference is negligible. Plan 9 adopts a very similar memory management
+scheme to Unix, and so fork semantics are roughly equivalent, including copy-on-write. (The 
+following citation contains a breakdown of almost every line in the Plan 9 kernel source code).
+[http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.75.5409&rep=rep1&type=pdf]. The number
+of cycles involved in forking a process is likely huge, however, and in the tens of thousands of 
+cycles, since all sorts of meta data (such as the page table) needs to be copied over. There 
+aren't many good resources online which have benchmarked the number of cycles involved in a fork.
 
-The software costs are most likely pretty low since Plan 9's rfork mechanism is
-relatively light weight and similar to the Unix version of fork. It might only
-scale this already tremendous runtime by a factor of two or so.
+Since the software overhead of a fork is the fork itself, the hardware and software costs are 
+pretty much interlinked in this particular experiment. Thus, we ignore a software multiplier, setting it
+equal to 1. 
 
-That puts our estimate at around 1000 usec for both fork operations.
+That puts our estimate at around 60,000 cycles or 30,000 nsec for both fork operations. We do not 
+believe that Plan 9's lightweight fork operation will help much, and that most of the resources 
+and state will still need to be copied to the child.
+
+Our results are recorded in table 4; we were roughly in line with our estimates, but there is something quite interesting going on with Plan 9's heavy fork, the equivalent of running a process vs. a kernel thread. There is no difference in average fork time, but there is a huge variation in the two. Heavy forks have a long tail; in future work, it may be interesting to plot this long tail, and analyze the impact it has on end-user applications.
+
+In general, programmers should opt for light forks, if possible. Just don't bend them!
 
 \begin{figure}
 	\centering
 \begin{tabular}{lll}
         & Light Fork & Heavy Fork \\
-Hardware Guess & 500 usec & 500 usec \\
-Software Multiplier & 2x & 2x \\
-Prediction & 1000 usec & 1000 usec \\
+Hardware Guess & 30 usec & 30 usec \\
+Software Multiplier & 1x & 1x \\
+Prediction & 30 usec & 30 usec \\
 Average & 27.250  usec & 28.674  usec \\
 Std Dev & 1.83 usec & 58.068 usec                  
 \end{tabular}
@@ -298,15 +336,54 @@ We repeat this measurement 1000 times and use a new pipe each time. To take
 the time of a context switch, we take the minimum time over all of these trials.
 
 We estimated the base hardware cost of context switching while pinned to a single CPU to
-be on the order of around 1100 ns based upon benchmarks done on the Intel E5-2620, another
+be on the order of around 1600 ns based upon benchmarks done on the Intel E5-2620, another
 Sandy Bridge processor model. [https://blog.tsunanet.net/2010/11/how-long-does-it-take-to-make-context.html]
 
-The software cost to a context switch for Plan 9 is going to be huge. Probably on the order of 40x or something along these lines, since the OS needs to deal with scheduling and piping and I/O and virtual memory, etc..
+Our prediction for the software cost of this is going to be quite large, most likely around 10x, since there
+are so many factors involved and our method of triggering a context switch is not the most scientific 
+method due to limitations in low-level threading primitives for Plan 9. 
 
-This puts our prediction right around 44 usec.
+This puts our prediction right around 16 usec; the cost of the context switch itself may be less than 
+this in Plan 9, but in order to measure this, we will need to develop modifications to the kernel. 
+These modifications are reserved for future work.
+
+The results are included in table 5. Our estimates were a bit too pessimistic, however, they were close 
+to the truth, as the results were skewed to values even greater than 16 microseconds. 
+
+In general, our methodology could be improved; a lack of familiarity with such a niche system reduced our ability to benchmark effectively. 
+
+\begin{figure}
+	\centering
+\begin{tabular}{ll}
+Hardware Cost  & 1600 nsec  \\
+Software Multiplier  & 10x   \\
+Prediction  & 16 usec    \\
+Average  & 13.458 usec    \\
+Std Dev. & 9.569 usec     \\
+Min      & 7.862 usec   
+\end{tabular}
+\caption{Context Switch Overheads}
+\label{tab:conswitchoverheads}
+\end{figure}
 
 \subsection{RAM Access Time}
+
 To measure ram access time we allocate a $1.6$ GB array on the heap, and iterated through it with changing stride size to hit L1, L2 cache and finally memory. The stride size gets increased by factor 1.01 for each iteration. Predictions are presented in fig.~\ref{tab:accesstimepred}, while the measurements are presented in fig.~\ref{tab:accesstime}. Figure~\ref{fig:memlatency} presents the plot of the mean in orange and standard deviation in blue with the last index accessed in the iteration on the $x$ axis, and memory access latency is displayed on a logarithmic scale $y$ axis. The measurements are not completely free of overhead, but still a transition from L1 to L2, and from L2 to memory is visible in the graph. 
+
+We estimated the base hardware cost of memory accesses based upon well documented knowledge of the timings of such memory accesses. According to work done on breaking AES, L1 cach is available after 3 cycles, L2 after 11, and memory after this takes hundreds of cycles. [http://palms.ee.princeton.edu/system/files/Cache-timing+attacks+on+AES.pdf]
+
+For measurements like the one outlined above, there is very little software cost involved; thus our software overhead estimate is a multiplier of 1.
+
+As a result, our prediction is that the memory access times under Plan 9 will correspond well with other 
+operating systems and personal computers, particularly those running x86 processors.
+
+And our results, shown in tables 6, 7, and figure 8, reveal that our prediction was, indeed, correct. Standard deviations were high for some portions, due to natural variations in experimental conditions. This is an 
+important result from a security point of view, as it reveals that Plan 9 may be vulnerable to significant 
+timing side channel attacks, something which should be addressed by the community in due time, especially
+considering the distributed nature of the Plan 9 system.
+
+Our methodology has revealed a common expectation and typical empirical feature of x86 processors, and 
+thus we are confident in our methodology.
 
 \begin{figure}
 	\centering
@@ -335,22 +412,8 @@ To measure ram access time we allocate a $1.6$ GB array on the heap, and iterate
 \begin{figure}
 	\centering
 	\input{mytikz.tex}
-	\caption{RAM access time with size of the memory region accessed on $x$  axis in an logarithmic scale and logarithmic latency in seconds on the $y$ axis. The orange graph displays the mean latency, while the blue graph displays the standard deviation}
+    \caption{RAM access time with size of the memory region accessed on $x$  axis in an logarithmic scale and logarithmic latency in seconds on the $y$ axis. The orange graph displays the mean latency, while the blue graph displays the standard deviation. L1 cache accesses end around $10^{4}$ and L2 cache accesses end between $10^{5}$ and $10^{6}$, where there are clear increases in the orange line.}
 	\label{fig:memlatency}
-\end{figure}
-
-\begin{figure}
-	\centering
-\begin{tabular}{ll}
-Hardware Cost  & 1100 nsec  \\
-Software Multiplier  & 40x   \\
-Prediction  & 44 usec    \\
-Average  & 13.458 usec    \\
-Std Dev. & 9.569 usec     \\
-Min      & 7.862 usec   
-\end{tabular}
-\caption{Context Switch Overheads}
-\label{tab:conswitchoverheads}
 \end{figure}
 
 \subsection{RAM Bandwidth}
@@ -362,9 +425,23 @@ each integer element one by one, and compensated for the loop overhead after
 averaging over all the times.
 
 Our memory bus bandwidth is about 10GB/s, so this serves as our predicted
-bandwidth for both reading and writing. We don't expect too much software
+bandwidth for both reading and writing. We don't expect much software
 overhead because we can directly read from and write to memory, provided the
-pages are faulted in for us.
+pages are faulted in for us, and the cost of these faults should be amortized.
+We still will most likely not reach peak performance, however, due to various
+OS interruptions. Writing will likely be slower than reading, as bits must be set
+on disk, and there may be more guarantees of correctness involved with writing, as 
+well as memory organization issues.
+
+And our results, shown in table 9, reveal that our prediction was roughly correcy. Write 
+bandwidths were around 70\% of the total possible bandwidth, and writes were 90\%. Cache line
+prefetching may also be speeding up the reads, and improving bandwidth where it may not 
+be improved by raw bus speed. Disabling optimizations, read speeds dropped dramatically.
+
+Our methodology was approximate and modified by software in a myriad of ways, but we feel it
+is reasonable enough to say that Plan 9 was effectively taking advantage of bandwidth. It may
+be worth looking into improving write speeds; either via improvment of the benchmark or the 
+kernel.
 
 \begin{figure}
 	\centering
@@ -382,19 +459,28 @@ pages are faulted in for us.
 \end{figure}
 \footnotetext{This measurement was done using optimization, without it the read speed is 1.17 }
 \subsection{Page Fault Service Time}
-Since getting pages to reliably swap to disk in plan 9 remained difficult due to imposed memory limits on processes, as well as random process deaths for no good reason, as well as failing calls to \texttt{brk}, and crashes when the swap file was overloaded. In light of the instability of high-memory demand approaches, we chose a different approach to page fault service time. In order to measure the Page Fault service time, we repeatedly opened the \texttt{/dev/random/} file, read in a single byte, and then closed the file. We timed the time it took to read that single byte; concurrent monitoring of page fault statistics on the machine informed us that this was causing repeated page faults from disk. Thus, we had our measurement of the service time. Articles were split on the timing for page faults: putting it anywhere between 1 and 4 microseconds for an SSD. Thus, we expected page fault timings to be somewhere around this.
+Since getting pages to reliably swap to disk in Plan 9 remained difficult due to imposed memory limits on processes, as well as random process deaths for no good reason, as well as failing calls to \texttt{brk}, and crashes when the swap file was overloaded. There was also no ability to mmap. In light of the instability of high-memory demand approaches, we chose a different approach to page fault service time. In order to measure the Page Fault service time, we repeatedly ran executable files with a globally
+mapped 4 kilobyte array, read in a single byte, and then stopped execution. We timed the time it took to read that single byte; concurrent monitoring of page fault statistics on the machine informed us that this was causing 16 repeated page faults from disk. Thus, we had our measurement of the service time. 
 
-In the end, this prediction seemed to be a bit too conservative, though close; the actual page fault service timing of the SSD was slightly less that 2 microseconds, leading to an overall timing of around 1800 nanoseconds.
+Articles were split on the timing for page faults: putting it around 3 microseconds for an SSD. Thus, we expected page fault timings to be somewhere around this. 
+https://pdfs.semanticscholar.org/dd0a/dcde7d074a414a9df76fb20d52a0d8aa8c71.pdf
+
+In the end, this prediction seemed to be a bit too conservative; the actual page fault service timing of the SSD was around 2.3 microseconds. Our results are summarised exactly in table 10. The SSD tested on is only a few months old, and it is possible that access speeds have gone up. It is also possible that we are missing some latency due to caching effects, though this is unlikely. 
+
+This methodology is quite rough, but it is the best which we were able to do given the constraints placed upon 
+us by Plan 9 in terms of forcing page faults.
+
+Dividing by a page size of 4096 bytes, we have roughly 2300 ns per 4096 bytes, or 0.578 ns per byte. This is much faster than accessing a single byte from main memory, since during a page fault we are able to stream in the data all at once, even though the time required to service the fault is high.
 
 \begin{figure}
 	\centering
     \begin{tabular}{l r r}
       & Page fault time (ns) \\
-      Hardware & $2000$\\
-      Software Multiplier & 1.5 \\
-      Prediction & $1.5 * 2000$ \\
+      Hardware & 3000\\
+      Software Multiplier & 1 \\
+      Prediction & $3000$ \\
                    & Average & Std Dev.\\
-      Actual Timing & 1804.887 & 374.341 \\
+      Actual Timing & 2370.5 & 57.084 \\
 \end{tabular}
 \caption{Page Fault Servicing}
 \label{tab:pagefault}
