@@ -72,7 +72,7 @@ void main(int argc, char *argv[])
     double mean = calc_mean(measurments);
     print("256 mb time (mean) on loopback (nsec): %f\n", mean / 2.5);
     double std_dev = calc_stddev(measurments,mean);
-    print("1024 mb time (std_dev) on loopback (nsec): %f\n", std_dev / 2.5);
+    print("256 mb time (std_dev) on loopback (nsec): %f\n", std_dev / 2.5);
 
     //time in nsec
     mean = mean /2.5;
@@ -83,6 +83,19 @@ void main(int argc, char *argv[])
 
     print("mean throughput in mb/s: %f\n", mean_1);
     print("std_dev throughput in mb/s: %f\n", std_dev_1);
+
+    double last_min;
+    for(int i=0;i<TRIALS;i++)
+    {
+            if(measurments[i] < last_min)
+            {
+                    last_min = measurments[i];
+            }
+    }
+
+    last_min = last_min/2.5;
+    last_min = 1000000000*(256/((double) last_min));
+    print("max throughput in mb/s: %f\n", last_min);
 
     free(buf);
     exits(nil);
