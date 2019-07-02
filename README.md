@@ -1,4 +1,10 @@
-# cse 221, systems measurement project
+# Measuring the Plan 9 OS for fun and for profit.
+
+This repository was a not-misguided attempt to benchmark the Plan 9 OS for the UCSD operating systems 
+class during Fall 2019. The resulting paper is under the USENIX directory. (Note that there are somewhat (80%)
+bogus hypotheses for operation times, and the measurements should be 60% bug-free, but feel free to correct
+them if you have the desire.)
+
 http://9front.org/
 
 ## useful manual:
